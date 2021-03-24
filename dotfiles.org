@@ -1,6 +1,0 @@
-#+TITLE: Nilay's dotfiles and config stuff
-#+AUTHOR: Nilay
-#+DESCRIPTION: All my config is symlinked to this folder so I can do version control easily
-
-
-A single place to keep all my custom configs

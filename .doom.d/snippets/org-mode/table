@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: table
+# key: table
+# --
+
+#+NAME: $1
+#+ATTR_LATEX: $2
+$3

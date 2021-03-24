@@ -1,0 +1,12 @@
+# -*- mode: snippet -*-
+# name: doc
+# key: doc
+# --
+
+#+TITLE: $1
+#+DESCRIPTION: $2
+#+AUTHOR: ${3:Nilay Patel}
+#+DATE:
+#+LATEX_CLASS_OPTIONS: [twocolumn]
+#+SETUPFILE: ~/.doom.d/org/standard-latex-export.org
+$4

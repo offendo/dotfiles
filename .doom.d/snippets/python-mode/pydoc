@@ -1,0 +1,13 @@
+# key: pydoc
+# name: pydoc
+# --
+""" $1
+
+Parameters
+----------
+${2:arg : type}
+
+Returns
+-------
+${3:type}
+"""

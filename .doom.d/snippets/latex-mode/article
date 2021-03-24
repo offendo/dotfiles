@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: article
+# key: article
+# --
+\documentclass{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{parskip}
+\usepackage{booktabs}
+\usepackage{amsmath}
+
+\title{$1}
+\author{${2:Nilay Patel}}
+
+\begin{document}
+$3
+\end{document}

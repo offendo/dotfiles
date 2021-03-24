@@ -1,0 +1,35 @@
+#+LATEX_CLASS: article
+#+LATEX_CLASS_OPTIONS: [colorlinks]
+#+OPTIONS: toc:nil num:nil
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry}
+#+LATEX_HEADER: \usepackage{parskip}
+#+LATEX_HEADER: \usepackage[style=authoryear-comp]{biblatex}
+#+LATEX_HEADER: \addbibresource{./refs.bib}
+#+LATEX_HEADER: \usepackage{amsmath}
+#+LATEX_HEADER: \usepackage{amsthm}
+#+LATEX_HEADER: \usepackage{amsfonts}
+#+LATEX_HEADER: \usepackage{amssymb}
+#+LATEX_HEADER: \usepackage{graphicx}
+#+LATEX_HEADER: \usepackage{asymptote}
+#+LATEX_HEADER: \usepackage{mathtools}
+#+LATEX_HEADER: \DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+#+LATEX_HEADER: \DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+#+LATEX_HEADER: \usepackage{tikzsymbols}
+#+LATEX_HEADER: \usepackage{tikz, wrapfig, kantlipsum}
+#+LATEX_HEADER: \usepackage{accents}
+#+LATEX_HEADER: \usepackage{xcolor}
+#+LATEX_HEADER: \usepackage{soul}
+#+LATEX_HEADER: \newtheorem{lemma}{Lemma}
+#+LATEX_HEADER: \newtheorem{theorem}{Theorem}
+#+LATEX_HEADER: \newtheorem{corollary}{Corollary}
+#+LATEX_HEADER: \newtheorem{claim}{Claim}
+#+LATEX_HEADER: \newtheorem{conjecture}{Conjecture}
+#+LATEX_HEADER: \newtheorem{question}{Question}
+#+LATEX_HEADER: \theoremstyle{definition}
+#+LATEX_HEADER: \newtheorem{definition}{Definition}
+#+LATEX_HEADER: \newtheorem{remark}{Remark}
+#+LATEX_HEADER: \newcommand{\west}{\leftarrow}
+#+LATEX_HEADER: \newcommand{\east}{\rightarrow}
+#+LATEX_HEADER: \newcommand{\north}{\uparrow}
+#+LATEX_HEADER: \newcommand{\south}{\downarrow}
+#+LATEX_HEADER: \newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}

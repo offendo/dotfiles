@@ -1,0 +1,22 @@
+# -*- mode: snippet -*-
+# name: homework
+# key: homework
+# --
+
+#+TITLE:
+#+AUTHOR:
+#+DATE:
+#+LATEX_CLASS: homework
+#+OPTIONS: toc:nil num:nil
+#+LATEX_HEADER: \usepackage[margin=1in]{geometry} \usepackage{booktabs}
+#+LATEX_HEADER: \usepackage{amsmath}
+
+#+begin_export latex
+\hwtitle{$1}
+\hwclass{$2}
+\hwauthor{Nilay Patel}
+#+end_export
+
+#+begin_hwproblem
+$3
+#+end_hwproblem

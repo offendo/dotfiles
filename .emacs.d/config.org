@@ -129,9 +129,12 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 ;; max column width
 (setq-default fill-column 100)
 ;; cache-directory
-(setq nilays-cache-dir "~/.emacs.d/.cache/")
+(setq nilays-cache-dir (concat user-emacs-directory ".cache/"))
 ;; enable global hl-line mode
 (global-hl-line-mode +1)
+;; save history
+(setq savehist-file (concat nilays-cache-dir "savehist"))
+(savehist-mode 1)
 #+end_src
 
 ** Basic Keybindings
@@ -261,8 +264,9 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :after consult
   :config 
   (recentf-mode 1)
-  (setq recentf-max-menu-items 10)
-  (setq recentf-max-saved-items 10))
+  (setq recentf-save-file (concat nilays-cache-dir "recentf" )
+        recentf-max-menu-items 10
+        recentf-max-saved-items 10))
 ;; Selectrum
 (use-package selectrum
   :straight t
@@ -338,7 +342,7 @@ This doesn't work with early-init though, so it'll take some work if I ever want
         ;; invert the navigation direction if the the completion popup-isearch-match
         ;; is displayed on top (happens near the bottom of windows)
         company-tooltip-flip-when-above t)
-  (gnlobal-company-mode 1))
+  (global-company-mode 1))
 #+end_src
 
 ** Magit
@@ -405,7 +409,7 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :hook ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
 (use-package hideshow
   :straight nil
-  :init (hs-minor-mode))
+  :hook ((prog-mode org-mode text-mode) . hs-minor-mode))
 #+end_src
 
 ** Projectile

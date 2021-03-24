@@ -1,0 +1,422 @@
+#+TITLE: Nilay's Emacs Configuration
+#+AUTHOR: Nilay
+#+DESCRIPTION: Trying out a non-doom configuration
+#+STARTUP: content
+#+PROPERTY: header-args :results silent
+
+* Important Packages
+** Use-package
+Install =use-package= with =straight=.
+#+begin_src elisp
+(straight-use-package 'use-package)
+#+end_src
+
+** Evil Mode
+Anything related to the fantastic evil-mode. Primarily extensions and stuff.
+#+begin_src elisp
+(use-package evil
+    :init
+    (setq evil-want-keybinding nil)
+    (setq evil-want-integration t)
+    :straight t
+    :config
+    (evil-mode 1)
+    (define-key key-translation-map (kbd "ESC") (kbd "C-g")))
+(use-package evil-collection ;; make evil available everywhere
+    :after evil
+    :straight t
+    :init (evil-collection-init))
+(use-package undo-fu ;; make undo system work better
+    :after evil
+    :straight t
+    :config
+    (evil-set-undo-system 'undo-fu)
+    (setq evil-want-fine-undo t))
+(use-package evil-goggles ;; show what I'm editing in a flash
+    :after evil
+    :straight t
+    :config
+    (evil-goggles-mode)
+    (setq evil-goggles-pulse t)
+    (setq evil-goggles-duration 0.100))
+(use-package evil-surround
+  :straight t
+  :config
+  (global-evil-surround-mode 1))
+(use-package evil-org
+  :straight t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+(use-package evil-matchit
+  :straight t
+  :after evil
+  :config (global-evil-matchit-mode 1))
+#+end_src
+
+** General
+Check out the [[https://github.com/noctuid/general.el][general]] page for more information.
+#+begin_src elisp
+  (use-package general
+    :straight t
+    :config
+    (general-evil-setup t))
+#+end_src
+
+* Prettifying
+** Adjust sizes
+#+begin_src elisp
+(setq default-frame-alist
+      (append (list
+              '(vertical-scroll-bars . nil)
+              '(internal-border-width . 24)
+              '(left-fringe    . 1)
+              '(right-fringe   . 1)
+              '(tool-bar-lines . 0)
+              '(menu-bar-lines . 0))))
+
+(defun set-fonts ()
+    (set-face-attribute 'variable-pitch nil :font "Iosevka Medium Extended-26")
+    (set-face-attribute 'fixed-pitch nil :font "Iosevka Medium Extended-22")
+    (set-face-attribute 'default nil :font "Iosevka Medium Extended-22"))
+(set-fonts)
+(add-hook 'after-make-frame-functions
+    (lambda (frame)
+      (set-fonts)))
+#+end_src
+
+** Theme
+#+begin_src elisp
+;; load a theme
+(use-package spacemacs-theme
+  :straight t
+  :defer t
+  :init (load-theme 'spacemacs-light t))
+#+end_src
+
+** Modeline
+#+begin_src elisp
+(use-package doom-modeline
+  :straight t
+  :init (doom-modeline-mode 1))
+#+end_src
+
+* Emacs Stuff
+** Startup Time
+This doesn't work with early-init though, so it'll take some work if I ever want to use it
+#+begin_src elisp
+;; Startup time
+(use-package esup
+  :straight t)
+#+end_src
+
+** Settings
+#+begin_src elisp
+;; org-mode src blocks
+;; (setq org-src-tab-acts-natively t)
+(setq org-edit-src-content-indentation 0)
+;; Ispell dicitonary
+(setq ispell-dictionary "en")
+;; Expand tab to spaces
+(setq indent-tabs-mode nil)
+(setq tab-width 2)
+;; disable the scratch message stuff
+(setq initial-scratch-message nil)
+;; add to path
+(add-to-list 'exec-path "~/.cargo/bin/")
+;; max column width
+(setq-default fill-column 100)
+;; cache-directory
+(setq nilays-cache-dir "~/.emacs.d/.cache/")
+;; enable global hl-line mode
+(global-hl-line-mode +1)
+#+end_src
+
+** Basic Keybindings
+#+begin_src elisp
+(general-create-definer leader-def
+  :states '(normal insert emacs)
+  :prefix "SPC"
+  :non-normal-prefix "M-SPC"
+  :prefix-command 'leader-prefix-command
+  :prefix-map 'leader-prefix-map)
+
+;; Find-file
+(leader-def "." 'find-file)
+
+;; Buffer editor
+(leader-def "b" 'ibuffer)
+
+;; Dired
+(defun nilay-open-dired ()
+  "Open dired"
+  (interactive)
+  (dired "."))
+
+(leader-def "-" 'nilay-open-dired)
+
+;; Bookmarks
+(leader-def "v" 'bookmark-map)
+#+end_src
+
+** Text Objects
+#+begin_src elisp
+(defmacro define-and-bind-text-object (key start-regex end-regex)
+  (let ((inner-name (make-symbol "inner-name"))
+        (outer-name (make-symbol "outer-name")))
+    `(progn
+       (evil-define-text-object ,inner-name (count &optional beg end type)
+         (evil-select-paren ,start-regex ,end-regex beg end type count nil))
+       (evil-define-text-object ,outer-name (count &optional beg end type)
+         (evil-select-paren ,start-regex ,end-regex beg end type count t))
+       (define-key evil-inner-text-objects-map ,key (quote ,inner-name))
+       (define-key evil-outer-text-objects-map ,key (quote ,outer-name)))))
+
+
+;; i$/a$ objects
+(define-and-bind-text-object "$" "\\$" "\\$")
+
+;; create "id"/"ad" (inside/around) entire buffer text objects:
+(define-and-bind-text-object "d" "\\`\\s-*" "\\s-*\\'")
+
+(defun nilay-end-of-non-whitespace()
+  "Move to the last non-whitespace character in the current line."
+  (interactive)
+  (move-end-of-line nil)
+  (re-search-backward "^\\|[^[:space:]]"))                                       
+
+(evil-define-text-object nilay-inner-line (count &optional beg end type)
+  "Select a line ignoring starting and ending whitespace"
+  (save-excursion
+    (evil-first-non-blank)
+    (let ((begp (point)))
+      (nilay-end-of-non-whitespace)
+      (let  ((endp (point)))
+        (evil-range begp (+ 1 endp))))))
+
+(general-define-key
+ :keymaps 'evil-inner-text-objects-map
+ "l" 'nilay-inner-line)
+#+end_src
+
+** Emacs Anywhere
+#+begin_src elisp
+(setq ea-window-title "floating")
+#+end_src
+
+* Language Settings
+** LaTeX
+#+begin_src elisp
+(use-package latex
+  :straight nil
+  :hook (LaTeX-mode . auto-fill-mode)
+  :config
+  (setq tex-fontify-script nil
+        font-latex-fontify-script nil
+        font-latex-fontify-sectioning 'color)
+  (setq +latex-viewers '(skim atril evince sumatrapdf zathura okular pdf-tools)
+    TeX-view-program-selection '((output-pdf "Atril"))))
+(use-package auctex
+  :straight t
+  :defer t
+  :config
+  (add-to-list
+   'TeX-command-list
+   '("LatexMk" "latexmk -outdir=./build/ -pdflatex='lualatex -shell-escape -interaction nonstopmode' -pdf -f  %f"
+     TeX-run-command t t
+     :help "Run LatexMk"))
+  (setq 'TeX-command-default "LatexMk"))
+#+end_src
+
+* Cool Things
+** Almighty Org
+#+begin_src elisp
+(use-package org
+  :mode (("\\.org$" . org-mode))
+  :straight nil
+  :hook (org-mode .  auto-fill-mode)
+        (org-mode . (lambda () (electric-indent-local-mode -1)))
+  :config
+  (set-display-table-slot standard-display-table
+                          'selective-display (string-to-vector " ↷"))
+  (setq org-startup-indented t
+        org-confirm-babel-evaluate nil
+        org-agenda-span 'week
+        org-agenda-start-day "+0d"
+        org-image-actual-width nil))
+;; Prettify
+  (use-package org-superstar
+    :straight t
+    :hook (org-mode . org-superstar-mode)
+    :config
+    (org-superstar-configure-like-org-bullets))
+#+end_src
+
+** Selectrum et al.
+#+begin_src elisp
+;; recentf-mode
+(use-package recentf
+  :after consult
+  :config 
+  (recentf-mode 1)
+  (setq recentf-max-menu-items 10)
+  (setq recentf-max-saved-items 10))
+;; Selectrum
+(use-package selectrum
+  :straight t
+  :config
+  (selectrum-mode +1)
+  (setq completion-ignore-case t
+	read-file-name-completion-ignore-case t
+	read-buffer-completion-ignore-case t))
+;; Prescient
+(use-package prescient
+  :straight t)
+(use-package selectrum-prescient
+  :straight t
+  :after '(selectrum prescient)
+  :config
+  (selectrum-prescient-mode)
+  (setq selectrum-prescient-enable-sorting t)
+  (setq selectrum-prescient-enable-filtering t)
+  (prescient-persist-mode))
+;; Orderless
+(use-package orderless
+  :straight t
+  :custom (completion-styles '(orderless substring )))
+;; Consult
+(use-package consult
+  :straight t
+  :general
+  (leader-def "," 'consult-buffer)
+  (leader-def "y" 'consult-register)
+  (leader-def "m" 'consult-mark)
+  (leader-def "f" 'consult-ripgrep))
+;; Marginalia
+(use-package marginalia
+  :general
+  (:keymaps 'minibuffer-local-map
+	    "M-A"  'marginalia-cycle)
+  :init
+  (marginalia-mode)
+  (marginalia-cycle)
+  (advice-add #'marginalia-cycle
+	      :after (lambda ()
+		       (when (bound-and-true-p selectrum-mode)
+			 (selectrum-exhibit 'keep-selected)))))
+;; Embark 
+(use-package embark
+  :straight t
+  :general
+  ("C-a" 'embark-act)
+  (:keymaps 'embark-file-map
+  "d" 'delete-file
+  "r" 'rename-file
+  "c" 'copy-file
+  "v" 'vonfind-file-other-window))
+
+(use-package embark-consult
+  :straight t
+  :after '(embark consult)
+  :demand t
+  :hook
+  (embark-collect-mode . embark-consult-preview-minor-mode))
+#+end_src
+
+** Company
+#+begin_src elisp
+(use-package company
+  :straight t
+  :config
+  (setq company-idle-delay 0.2 
+        company-show-numbers t 
+        company-tooltip-limit 10 
+        company-minimum-prefix-length 2 
+        company-tooltip-align-annotations t
+        ;; invert the navigation direction if the the completion popup-isearch-match
+        ;; is displayed on top (happens near the bottom of windows)
+        company-tooltip-flip-when-above t)
+  (gnlobal-company-mode 1))
+#+end_src
+
+** Magit
+#+begin_src elisp
+  (use-package magit
+    :straight t
+    :general
+    (leader-def "g" 'magit-status))
+#+end_src
+
+** Which-key
+#+begin_src elisp
+  (use-package which-key
+    :straight t
+    :config
+    (which-key-mode)
+    (setq which-key-idle-delay 0.5))
+#+end_src
+
+** Yasnippet
+#+begin_src elisp
+  (use-package yasnippet
+    :straight t
+    :hook (prog-mode . yas-minor-mode)
+          (org-mode . yas-minor-mode)
+    :config
+    (setq yas-verbosity 1 ; No need to be so verbose
+          yas-wrap-around-region t))
+  (use-package yasnippet-snippets
+    :straight t
+    :after yasnippet)
+#+end_src
+
+** Formatter
+#+begin_src elisp
+  (use-package format-all
+    :straight t
+    :hook (prog-mode . format-all-mode))
+#+end_src
+
+** Vterm
+#+begin_src elisp
+  (use-package vterm
+    :straight t)
+  (use-package vterm-toggle
+    :straight t
+    :general (leader-def "t" 'vterm-toggle))
+#+end_src
+
+** LSP
+#+begin_src elisp
+(use-package lsp-mode
+  :hook prog-mode
+  :straight t)
+#+end_src
+
+** Code Folding
+#+begin_src elisp
+(use-package vimish-fold
+  :straight t)
+(use-package evil-vimish-fold
+  :straight t
+  :after '(vimish-fold evil)
+  :hook ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
+(use-package hideshow
+  :straight nil
+  :init (hs-minor-mode))
+#+end_src
+
+** Projectile
+#+begin_src elisp
+(use-package projectile
+  :straight t
+  :init 
+  (setq projectile-cache-file (concat nilays-cache-dir ".projectile.cache"))
+  (projectile-mode +1)
+  :general
+  (leader-def "p" 'projectile-command-map))
+#+end_src
+
+

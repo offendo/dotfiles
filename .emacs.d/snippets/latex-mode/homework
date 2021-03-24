@@ -1,0 +1,17 @@
+# -*- mode: snippet -*-
+# name: homework
+# key: homework
+# --
+\documentclass{homework}
+
+\hwtitle{$1}
+\hwauthor{${2:Nilay Patel}}
+\hwclass{$3}
+
+\begin{document}
+
+\begin{hwproblem}
+    $4
+\end{hwproblem}
+
+\end{document}

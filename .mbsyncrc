@@ -1,0 +1,21 @@
+IMAPAccount gmail
+Host imap.gmail.com
+User nilaypatel2@gmail.com
+PassCmd "cat ~/.doom.d/mail-pass"
+SSLType IMAPS
+CertificateFile /etc/ssl/certs/ca-certificates.crt
+
+IMAPStore gmail-remote
+Account gmail
+
+MaildirStore gmail-local
+Subfolders Verbatim
+Path ~/mail/
+Inbox ~/mail/Inbox
+
+Channel gmail
+Master :gmail-remote:
+Slave :gmail-local:
+Patterns * ![Gmail]* "[Gmail]/Sent Mail" "[Gmail]/Starred" "[Gmail]/All Mail" "[Gmail]/Trash" "[Gmail]/Old Questions\/Important Things" "[Gmail]/Invitations" "[Gmail]/Attachments" "[Gmail]/Twitch" "[Gmail]/USPS" 
+Create Both
+SyncState *

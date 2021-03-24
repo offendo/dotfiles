@@ -1,0 +1,4 @@
+# key: bold
+# name: bold
+# --
+\textbf{$1} $2

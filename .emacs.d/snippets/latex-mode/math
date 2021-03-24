@@ -1,0 +1,53 @@
+# -*- mode: snippet -*-
+# name: math
+# key: math
+# --
+\documentclass{homework}
+
+\usepackage{xcolor}
+\usepackage{soul}  
+
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}  
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}  
+\usepackage{asymptote}
+\usepackage{mathtools}
+\DeclarePairedDelimiter{\ceil}{\lceil}{\rceil}
+\DeclarePairedDelimiter{\floor}{\lfloor}{\rfloor}
+\usepackage{tikzsymbols}
+\usepackage{tikz, wrapfig, kantlipsum}
+\usepackage{accents}
+
+\newtheorem{lemma}{Lemma}
+\newtheorem{theorem}{Theorem}
+\newtheorem{corollary}{Corollary}
+\newtheorem{claim}{Claim}
+
+\newtheorem{conjecture}{Conjecture}
+\newtheorem{question}{Question}
+
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{remark}{Remark}
+
+
+\newcommand{\west}{\leftarrow}
+\newcommand{\east}{\rightarrow}
+\newcommand{\north}{\uparrow}
+\newcommand{\south}{\downarrow}
+\newcommand\ddfrac[2]{\frac{\displaystyle #1}{\displaystyle #2}}
+
+\hwtitle{$1}
+\hwauthor{${2:Nilay Patel}}
+\hwclass{$3}
+
+\begin{document}
+
+\begin{hwproblem}
+    $4
+\end{hwproblem}
+
+\end{document}

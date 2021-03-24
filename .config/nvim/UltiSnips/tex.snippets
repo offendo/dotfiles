@@ -1,0 +1,147 @@
+snippet doc "Document for LaTeX" b
+\documentclass{$1}
+
+\usepackage[margin=1in, a4paper]{geometry}
+
+\author{${2:Nilay Patel}}
+\title{$3}
+\begin{document}
+\maketitle
+$4
+\end{document}
+endsnippet
+
+snippet homework "Homework header" b
+\documentclass{homework}
+\begin{document}
+\header{Nilay Patel}{${1:Class Name}}{${2:Homework Name}}
+$3
+\end{document}
+endsnippet
+
+snippet begin "\begin{} | \end{}" 
+\begin{$1}
+    $2
+\end{$1}
+endsnippet
+
+snippet chap "\chapter{} \\ \label{}" b
+\chapter{$1}
+\label{chapter:$1}
+$2
+endsnippet
+
+snippet sec "\section{} \\ \label{}" b
+\section{$1}
+\label{sec:$1}
+$2
+endsnippet
+
+snippet sub "\subsection{} \\ \label{}" b
+\subsection{$1}
+\label{subsec:$1}
+$2
+endsnippet
+
+snippet ssub "\subsubsection{} \\ \label{}" b
+\subsubsection{$1}
+\label{subsubsec:$1}
+$2
+endsnippet
+
+snippet fnm "\footnotemark{}" i
+\footnotemark
+endsnippet
+
+snippet fnt "\footnotetext{}"
+\footnotetext{$1}
+endsnippet
+
+snippet ital "\textit{}" i
+\textit{$1}$2
+endsnippet 
+
+snippet bold "\textbf{}" i
+\textbf{$1}$2
+endsnippet
+
+snippet mono "\texttt{}" i
+\texttt{$1}$2
+endsnippet
+
+snippet frac "\frac{}" A
+\frac{$1}{$2}$3
+endsnippet
+
+snippet pac "\usepackage" 
+\usepackage{$1}$2
+endsnippet
+
+global !p
+def fix_indent(snip):
+    vim.eval('feedkeys("\<c-f>")')
+endglobal
+post_expand "fix_indent(snip)"
+snippet - "\item"
+\item $1
+endsnippet
+
+snippet -> "\rightarrow" i
+\rightarrow 
+endsnippet
+
+snippet => "\Rightarrow" i
+\Rightarrow 
+endsnippet
+
+snippet subfile "subfile"
+\documentclass[${1:./main.tex}]{subfiles}
+\begin{document}
+$2
+\end{document}
+endsnippet
+
+snippet cite "\cite{...}" i
+\cite{$1}
+endsnippet
+
+global !p
+def create_table(snip):
+	rows = snip.buffer[snip.line].split('x')[0]
+	cols = snip.buffer[snip.line].split('x')[1]
+	int_val = lambda string: int(''.join(s for s in string if s.isdigit()))
+	
+	rows = int_val(rows)
+	cols = int_val(cols)
+	offset = cols + 1
+	old_spacing = snip.buffer[snip.line][:snip.buffer[snip.line].rfind('\t') + 1]
+	
+	snip.buffer[snip.line] = ''
+	
+	final_str = old_spacing + "\\begin{tabular}{|" + "|".join(['$' + str(i + 1) for i in range(cols)]) + "|}\n"
+	for i in range(rows):
+		final_str += old_spacing + '\t'
+		final_str += " & ".join(['$' + str(i * cols + j + offset) for j in range(cols)])
+		final_str += " \\\\\\\n"
+	final_str += old_spacing + "\\end{tabular}\n$0"
+	snip.expand_anon(final_str)
+def add_row(snip):
+	row_len = int(''.join(s for s in snip.buffer[snip.line] if s.isdigit()))
+	old_spacing = snip.buffer[snip.line][:snip.buffer[snip.line].rfind('\t') + 1]
+	snip.buffer[snip.line] = ''
+	
+	final_str = old_spacing
+	final_str += " & ".join(['$' + str(j + 1) for j in range(row_len)])
+	final_str += " \\\\\\"
+	snip.expand_anon(final_str)
+endglobal
+
+snippet tab "tabular / array environment" b
+\begin{${1:t}${1/(t)$|(a)$|(.*)/(?1:abular)(?2:rray)/}}{${2:c}}
+$0${2/(?<=.)(c|l|r)|./(?1: & )/g}
+\end{$1${1/(t)$|(a)$|(.*)/(?1:abular)(?2:rray)/}}
+endsnippet
+
+snippet vec "$\left<...\right>$"
+$\left<$1\right>$
+endsnippet

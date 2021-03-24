@@ -1,0 +1,14 @@
+# -*- mode: snippet -*-
+# name: blogpost
+# key: blogpost
+# --
+#+OPTIONS: num:nil
+#+BEGIN_EXPORT HTML
+---
+layout: post
+title: $1
+excerpt: $2
+---
+
+$0
+#+END_EXPORT

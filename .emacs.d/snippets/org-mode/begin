@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: begin
+# key: begin
+# --
+
+#+begin_$1
+$2
+#+end_$1

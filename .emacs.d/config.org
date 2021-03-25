@@ -6,9 +6,8 @@
 
 * Important Packages
 ** Use-package
-Install =use-package= with =straight=.
 #+begin_src elisp
-(straight-use-package 'use-package)
+(straight-use-package 'use-package) 
 #+end_src
 
 ** Evil Mode
@@ -65,44 +64,6 @@ Check out the [[https://github.com/noctuid/general.el][general]] page for more i
     (general-evil-setup t))
 #+end_src
 
-* Prettifying
-** Adjust sizes
-#+begin_src elisp
-(setq default-frame-alist
-      (append (list
-              '(vertical-scroll-bars . nil)
-              '(internal-border-width . 24)
-              '(left-fringe    . 1)
-              '(right-fringe   . 1)
-              '(tool-bar-lines . 0)
-              '(menu-bar-lines . 0))))
-
-(defun set-fonts ()
-    (set-face-attribute 'variable-pitch nil :font "Iosevka Medium Extended-26")
-    (set-face-attribute 'fixed-pitch nil :font "Iosevka Medium Extended-22")
-    (set-face-attribute 'default nil :font "Iosevka Medium Extended-22"))
-(set-fonts)
-(add-hook 'after-make-frame-functions
-    (lambda (frame)
-      (set-fonts)))
-#+end_src
-
-** Theme
-#+begin_src elisp
-;; load a theme
-(use-package spacemacs-theme
-  :straight t
-  :defer t
-  :init (load-theme 'spacemacs-light t))
-#+end_src
-
-** Modeline
-#+begin_src elisp
-(use-package doom-modeline
-  :straight t
-  :init (doom-modeline-mode 1))
-#+end_src
-
 * Emacs Stuff
 ** Startup Time
 This doesn't work with early-init though, so it'll take some work if I ever want to use it
@@ -135,6 +96,9 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 ;; save history
 (setq savehist-file (concat nilays-cache-dir "savehist"))
 (savehist-mode 1)
+;; backup files all in one place
+(setq backupdir (concat nilays-cache-dir "backup/"))
+(setq backup-directory-alist '(("" . 'backupdir)))
 #+end_src
 
 ** Basic Keybindings
@@ -419,8 +383,69 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :init 
   (setq projectile-cache-file (concat nilays-cache-dir ".projectile.cache"))
   (projectile-mode +1)
+  (setq projectile-auto-discover nil)
   :general
-  (leader-def "p" 'projectile-command-map))
+  (leader-def "p" 'projectile-command-map)
+  (:keymaps 'projectile-command-map
+  "d" 'projectile-remove-known-project
+  "a" 'projectile-add-known-project
+))
+#+end_src
+
+* Prettifying
+** Adjust sizes
+#+begin_src elisp
+(setq default-frame-alist
+      (append (list
+              '(vertical-scroll-bars . nil)
+              '(internal-border-width . 24)
+              '(left-fringe    . 1)
+              '(right-fringe   . 1)
+              '(tool-bar-lines . 0)
+              '(menu-bar-lines . 0))))
+
+(defun nilays-set-fonts ()
+    (set-face-attribute 'variable-pitch nil :font "Iosevka Medium Extended-26")
+    (set-face-attribute 'fixed-pitch nil :font "Iosevka Medium Extended-22")
+    (set-face-attribute 'default nil :font "Iosevka Medium Extended-22"))
+(nilays-set-fonts)
+#+end_src
+
+** Modeline
+#+begin_src elisp
+(use-package doom-modeline
+  :straight t
+  :init (doom-modeline-mode 1))
+#+end_src
+
+** Theme
+#+begin_src elisp
+;; load a theme
+(use-package spacemacs-common
+  :straight spacemacs-theme)
+;; :init (load-theme 'spacemacs-light t)
+#+end_src
+
+** Frame Hook
+#+begin_src elisp
+(defun nilays-appearance-setup (frame)
+  (with-selected-frame frame
+    (remove-hook 'after-make-frame-functions 'nilay-appearance-setup)
+
+    (when (functionp 'scroll-bar-mode) (scroll-bar-mode -1))
+    (when (functionp 'tool-bar-mode) (tool-bar-mode -1))
+    (when (functionp 'menu-bar-mode) (menu-bar-mode -1))
+
+    (load-theme 'spacemacs-light t)
+    (nilays-set-fonts)
+
+    (global-hl-line-mode)
+
+    (setq-default system-time-locale "C")))
+
+(if (daemonp)
+    (add-hook 'after-make-frame-functions 'nilays-appearance-setup)
+  (nilays-appearance-setup (car (frame-list))))
 #+end_src
 
 

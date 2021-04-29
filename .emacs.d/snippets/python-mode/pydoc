@@ -3,11 +3,9 @@
 # --
 """ $1
 
-Parameters
-----------
-${2:arg : type}
+Arguments
+---------
 
 Returns
 -------
-${3:type}
 """

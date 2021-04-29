@@ -1,9 +1,8 @@
 ;; This is to make sure straight.el does all the heavy lifting instead of package.el
+;;; Code:
+(setq straight-check-for-modifications nil)
 (setq package-enable-at-startup nil)
-(setq straight-use-package-by-default t)
 
-;; disable menu-bar-mode
-(menu-bar-mode -1)
 ;; disable splash-screen
 (setq inhibit-startup-screen t)
 
@@ -23,4 +22,4 @@
 
 
 ;; snippet to prevent autoloads from being compiled
-(setq comp-deferred-compilation-deny-list '("\\(?:[^z-a]*-autoloads\\.el$\\)" "\\(?:[^z-a]*-setup\\.el$\\)"))
+;; (setq comp-deferred-compilation-deny-list '("\\(?:[^z-a]*-autoloads\\.el$\\)" "\\(?:[^z-a]*-setup\\.el$\\)"))

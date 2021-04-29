@@ -29,6 +29,8 @@
 #+LATEX_HEADER: \usepackage{subfig} % Subfigures (not needed in Org I think)
 #+LATEX_HEADER: \usepackage{hyperref} % Links
 #+LATEX_HEADER: \usepackage{listings} % Code highlighting
+#+LATEX_HEADER: \usepackage{booktabs} % Better tables
+#+LATEX_HEADER: \usepackage{longtable} % Support for long tables
 % Disables flush alignment on the right side. Personal preference.
 # #+LATEX_HEADER: \RaggedRight
 

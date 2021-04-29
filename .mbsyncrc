@@ -1,7 +1,7 @@
 IMAPAccount gmail
 Host imap.gmail.com
 User nilaypatel2@gmail.com
-PassCmd "cat ~/.doom.d/mail-pass"
+PassCmd "pass gmail/mbsync"
 SSLType IMAPS
 CertificateFile /etc/ssl/certs/ca-certificates.crt
 

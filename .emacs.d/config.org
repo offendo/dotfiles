@@ -3,6 +3,7 @@
 #+DESCRIPTION: Trying out a non-doom configuration
 #+STARTUP: content
 #+PROPERTY: header-args :results silent
+#+ROAM_TAGS: config nilay
 
 * Important Packages
 ** Use-package
@@ -73,48 +74,98 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :straight t)
 #+end_src
 
-** Settings
+** Built-ins
+*** Personal info
 #+begin_src elisp
-;; org-mode src blocks
-;; (setq org-src-tab-acts-natively t)
-(setq org-edit-src-content-indentation 0)
-;; Ispell dicitonary
-(setq ispell-dictionary "en")
+(setq user-mail-address "nilaypatel2@gmail.com")
+#+end_src
+
+*** Indentation
+#+begin_src elisp
 ;; Expand tab to spaces
 (setq indent-tabs-mode nil)
 (setq tab-width 2)
-;; disable the scratch message stuff
-(setq initial-scratch-message nil)
-;; add to path
-(add-to-list 'exec-path "~/.cargo/bin/")
-;; max column width
-(setq-default fill-column 100)
+#+end_src
+
+*** Caching
+#+begin_src elisp
 ;; cache-directory
 (setq nilays-cache-dir (concat user-emacs-directory ".cache/"))
-;; enable global hl-line mode
-(global-hl-line-mode +1)
 ;; save history
 (setq savehist-file (concat nilays-cache-dir "savehist"))
 (savehist-mode 1)
 ;; backup files all in one place
-(setq backupdir (concat nilays-cache-dir "backup/"))
-(setq backup-directory-alist '(("" . 'backupdir)))
+(setq backup-directory-alist
+        `((".*" . ,nilays-cache-dir)))
+(setq auto-save-file-name-transforms
+        `((".*" ,nilays-cache-dir t)))
+;; remove lock files
+(setq create-lockfiles nil)
 #+end_src
 
-** Basic Keybindings
+*** Recentf
+#+begin_src elisp
+;; recentf-mode
+(recentf-mode 1)
+(setq recentf-max-menu-items 25)
+(setq recentf-max-saved-items 25)
+(setq recentf-save-file (concat nilays-cache-dir "recentf" ))
+#+end_src
+
+*** Spelling
+#+begin_src elisp
+;; Ispell dicitonary
+(setq ispell-dictionary "en")
+#+end_src
+
+*** Path
+#+begin_src elisp
+;; add to path
+(use-package exec-path-from-shell
+  :straight t
+  :init (when (daemonp) (exec-path-from-shell-initialize)))
+#+end_src
+
+*** Help window
+#+begin_src elisp
+;; select help window on open
+(setq help-window-select t)
+(add-to-list 'display-buffer-alist
+             '((lambda(bufname _) (with-current-buffer bufname (equal major-mode 'help-mode)))
+               (display-buffer-reuse-window display-buffer-at-bottom)
+               (reusable-frames . visible)
+               (window-height . 0.25)))
+#+end_src
+
+*** Tramp Mode
+#+begin_src elisp
+(use-package tramp
+  :straight nil
+  :config 
+  (setq tramp-default-method "ssh"))
+#+end_src
+
+** Keybindings
 #+begin_src elisp
 (general-create-definer leader-def
   :states '(normal insert emacs)
   :prefix "SPC"
+  :keymaps 'override
   :non-normal-prefix "M-SPC"
   :prefix-command 'leader-prefix-command
   :prefix-map 'leader-prefix-map)
 
+(general-create-definer leader-code-def
+  :states '(normal insert emacs)
+  :prefix "SPC c"
+  :keymaps 'override
+  :non-normal-prefix "M-SPC c"
+  :prefix-command 'code
+  :prefix-map 'leader-code-prefix-map)
+
 ;; Find-file
 (leader-def "." 'find-file)
 
-;; Buffer editor
-(leader-def "b" 'ibuffer)
 
 ;; Dired
 (defun nilay-open-dired ()
@@ -126,6 +177,29 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 
 ;; Bookmarks
 (leader-def "v" 'bookmark-map)
+
+;; Buffer stuff
+(general-create-definer leader-buffer-def
+  :states '(normal insert emacs)
+  :prefix "SPC b"
+  :keymaps 'override
+  :non-normal-prefix "M-SPC b"
+  :prefix-command 'buffer
+  :prefix-map 'leader-buffer-prefix-map)
+
+(leader-buffer-def "i" 'ibuffer)
+(leader-buffer-def "d" 'evil-delete-buffer)
+
+
+;; Org-mode
+
+(general-create-definer leader-org-def
+  :states '(normal insert emacs)
+  :prefix "SPC o"
+  :keymaps 'override
+  :non-normal-prefix "M-SPC o"
+  :prefix-command 'org
+  :prefix-map 'leader-org-prefix-map)
 #+end_src
 
 ** Text Objects
@@ -197,40 +271,166 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   (setq 'TeX-command-default "LatexMk"))
 #+end_src
 
+** Python
+#+begin_src elisp
+(use-package python
+  :straight nil
+  :config 
+  (setq python-indent-guess-indent-offset-verbose nil))
+#+end_src
+
 * Cool Things
+** Compilation Mode
+#+begin_src elisp
+(use-package compile
+  :straight nil
+  :general
+  (leader-code-def "c" 'compile)
+  :config (setq compilation-scroll-output t))
+
+(defun colorize-compilation-buffer ()
+  (let ((inhibit-read-only t))
+    (ansi-color-apply-on-region (point-min) (point-max))))
+
+(use-package ansi-color
+  :straight nil
+  :init (add-hook 'compilation-filter-hook 'colorize-compilation-buffer))
+#+end_src
+
+** CSV Mode
+#+begin_src elisp
+(use-package csv-mode
+  :straight t) 
+#+end_src
+
+** PDF Stuff
+#+begin_src elisp
+(use-package pdf-tools
+  :straight t
+  :defer t
+  :config
+  (pdf-tools-install)
+  (setq-default pdf-view-display-size 'fit-page)
+  (setq pdf-annot-activate-created-annotations t))
+#+end_src
+
+** Multiple Cursors
+#+begin_src elisp
+(use-package evil-mc
+  :straight t
+  :after evil
+  :init (global-evil-mc-mode 1)
+  :general
+  (:states '(normal visual)
+   "C-." 'evil-mc-make-and-goto-next-match
+   "C-," 'evil-mc-make-and-goto-prev-match
+   "C->" 'evil-mc-skip-and-goto-next-match
+   "C-<" 'evil-mc-skip-and-goto-prev-match
+   "C-S-a" 'evil-mc-make-all-cursors
+   "C-g" 'evil-mc-undo-all-cursors
+   "C-l" 'evil-mc-make-cursor-in-visual-selection-beg)
+  (:keymaps 'mc/keymap "RET" nil))
+#+end_src
+
 ** Almighty Org
+*** Org-stuff
 #+begin_src elisp
 (use-package org
   :mode (("\\.org$" . org-mode))
   :straight nil
   :hook (org-mode .  auto-fill-mode)
-        (org-mode . (lambda () (electric-indent-local-mode -1)))
+  (org-mode . (lambda () (electric-indent-local-mode -1)))
   :config
+  ;; make ret follow links
+  (setq org-return-follows-link t)
   (set-display-table-slot standard-display-table
                           'selective-display (string-to-vector " ↷"))
   (setq org-startup-indented t
         org-confirm-babel-evaluate nil
         org-agenda-span 'week
         org-agenda-start-day "+0d"
-        org-image-actual-width nil))
+        org-image-actual-width nil)
+  ;; org-mode src blocks
+  (setq org-edit-src-content-indentation 0
+	org-src-tab-acts-natively t))
+
+#+end_src
+
+*** Exporting
+#+begin_src elisp
+;; LaTeX Exporting
+(use-package ox-latex
+  :straight nil
+  :config
+  (setq org-latex-pdf-process
+        (list "latexmk -outdir=./build/ -pdflatex='lualatex -shell-escape -interaction nonstopmode' -pdf -f  %f"))
+  (setq org-beamer-frame-level 2)
+  (plist-put org-format-latex-options :scale 3)
+  (setq org-startup-with-latex-preview nil)
+  (setq org-latex-caption-above nil)
+  (push '("homework" "\\documentclass{homework}") org-latex-classes))
+
+#+end_src
+
+*** Superstar
+#+begin_src elisp
 ;; Prettify
-  (use-package org-superstar
-    :straight t
-    :hook (org-mode . org-superstar-mode)
-    :config
-    (org-superstar-configure-like-org-bullets))
+(use-package org-superstar
+  :straight t
+  :hook (org-mode . org-superstar-mode)
+  :config
+  (org-superstar-configure-like-org-bullets))
+#+end_src
+
+*** Agenda
+#+begin_src elisp
+;; Agenda
+(use-package org-agenda
+  :straight nil
+  :after org
+  :general (leader-org-def "a" 'org-agenda)
+  :config
+  (setq org-agenda-files
+	(directory-files-recursively "~/org/" "\\.org$"))
+  (setq org-agenda-custom-commands
+	'(("d" "Today's Tasks"
+	   ((agenda "" ((org-agenda-span 1)
+			(org-agenda-overriding-header "Today's Tasks")))))))
+  :custom
+  (org-agenda-prefix-format '((agenda . " %i %-20:c%?-12t%-6e% s")
+			      (todo   . " %i %-20:c %-6e")
+			      (tags   . " %i %-20:c")
+			      (search . " %i %-20:c"))))
+#+end_src
+
+*** Roam
+#+begin_src elisp
+(use-package org-roam
+  :straight t
+  :hook
+  (after-init . org-roam-mode)
+  :custom
+  (org-roam-directory "~/org/wiki/")
+  :general
+  (leader-org-def 
+   :ignore t 
+   :which-key "roam"
+   :keymaps 'org-roam-mode-map
+   :states '(normal)
+    "nl" 'org-roam
+    "nf" 'org-roam-find-file
+    "ng" 'org-roam-graph)
+  (leader-org-def
+   :ignore t 
+   :which-key "roam"
+   :keymaps 'org-mode-map
+   :states '(normal)
+    "ni" 'org-roam-insert
+    "nI" 'org-roam-insert-immediate))
 #+end_src
 
 ** Selectrum et al.
 #+begin_src elisp
-;; recentf-mode
-(use-package recentf
-  :after consult
-  :config 
-  (recentf-mode 1)
-  (setq recentf-save-file (concat nilays-cache-dir "recentf" )
-        recentf-max-menu-items 10
-        recentf-max-saved-items 10))
 ;; Selectrum
 (use-package selectrum
   :straight t
@@ -264,6 +464,7 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   (leader-def "f" 'consult-ripgrep))
 ;; Marginalia
 (use-package marginalia
+  :straight t
   :general
   (:keymaps 'minibuffer-local-map
 	    "M-A"  'marginalia-cycle)
@@ -278,12 +479,12 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 (use-package embark
   :straight t
   :general
-  ("C-a" 'embark-act)
+  ("C-b" 'embark-act)
   (:keymaps 'embark-file-map
   "d" 'delete-file
   "r" 'rename-file
   "c" 'copy-file
-  "v" 'vonfind-file-other-window))
+  "v" 'find-file-other-window))
 
 (use-package embark-consult
   :straight t
@@ -297,6 +498,14 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 #+begin_src elisp
 (use-package company
   :straight t
+  :general 
+  (:keymaps 'company-mode-map 
+   "C-l" 'company-complete)
+  (:keymaps 'company-mode-map
+   :states '(insert)
+   "C-n" 'company-select-next
+   "C-p" 'company-select-previous
+   "C-f" 'company-files)
   :config
   (setq company-idle-delay 0.2 
         company-show-numbers t 
@@ -328,39 +537,116 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 
 ** Yasnippet
 #+begin_src elisp
-  (use-package yasnippet
-    :straight t
-    :hook (prog-mode . yas-minor-mode)
-          (org-mode . yas-minor-mode)
-    :config
-    (setq yas-verbosity 1 ; No need to be so verbose
-          yas-wrap-around-region t))
-  (use-package yasnippet-snippets
-    :straight t
-    :after yasnippet)
+(use-package yasnippet
+  :straight t
+  :hook (prog-mode . yas-minor-mode)
+        (org-mode . yas-minor-mode)
+  :config
+  (setq yas-verbosity 1 ; No need to be so verbose
+        yas-wrap-around-region nil))
+(use-package yasnippet-snippets
+  :straight t
+  :after yasnippet)
 #+end_src
 
 ** Formatter
 #+begin_src elisp
-  (use-package format-all
-    :straight t
-    :hook (prog-mode . format-all-mode))
+(use-package format-all
+  :straight t
+  :hook (prog-mode . format-all-mode)
+  :general (leader-code-def "f" 'format-all-buffer)
+  :init (add-hook 'prog-mode-hook 'format-all-ensure-formatter)
+  :config 
+  (setq format-all-formatters (list '("haskell" . 'ormolu) '("python" . 'black) )))
 #+end_src
 
 ** Vterm
 #+begin_src elisp
-  (use-package vterm
-    :straight t)
-  (use-package vterm-toggle
-    :straight t
-    :general (leader-def "t" 'vterm-toggle))
+(use-package vterm
+  :straight t)
+(use-package vterm-toggle
+  :straight t
+  :init
+  (setq vterm-toggle-fullscreen-p nil)
+  (add-to-list 'display-buffer-alist
+               '((lambda(bufname _) (with-current-buffer bufname (equal major-mode 'vterm-mode)))
+                 (display-buffer-reuse-window display-buffer-at-bottom)
+                 (reusable-frames . visible)
+                 (window-height . 0.25)))
+  :general (leader-def "t" 'vterm-toggle))
 #+end_src
 
 ** LSP
+*** LSP mode
 #+begin_src elisp
 (use-package lsp-mode
-  :hook prog-mode
+  :straight t
+  :defer t
+  :init
+  (setq lsp-diagnostics-provider :flycheck))
+
+(use-package lsp-ui
+  :straight t
+  :commands lsp-ui-mode
+  :after lsp-mode
+  :hook (lsp-mode . lsp-ui-mode)
+  :config
+  (setq lsp-ui-doc-max-height 16
+        lsp-ui-doc-max-width 100
+        lsp-ui-doc-enable nil
+        lsp-ui-doc-position 'top
+        lsp-ui-sideline-ignore-duplicate t
+        lsp-ui-sideline-show-code-actions nil
+        lsp-signature-auto-activate t
+        lsp-enable-symbol-highlighting nil)
+ :general
+ ;; changes K to use LSP
+ (:keymaps '(global lsp-mode-map)
+  :states 'normal
+  [remap evil-lookup]  'lsp-describe-thing-at-point)
+ ;; goto stuff
+ (:keymaps '(global lsp-mode-map)
+  :states 'normal
+  :prefix "g"
+  "r" 'lsp-ui-peek-find-references
+  "d" 'lsp-find-definition
+  "D" 'lsp-ui-peek-find-definitions)
+ ;; rename
+ (leader-code-def "r" 'lsp-rename))
+
+#+end_src
+
+*** Python
+#+begin_src elisp
+(use-package lsp-python-ms
+  :straight t
+  :defer t
+  :init (setq lsp-python-ms-auto-install-server t
+              lsp-python-ms-cache "Library")
+  :hook (python-mode . (lambda ()
+                         (require 'lsp-python-ms)
+                         (lsp))))
+#+end_src
+
+*** Haskell
+#+begin_src elisp
+(use-package haskell-mode
   :straight t)
+  
+(use-package lsp-haskell
+  :straight t
+  :after lsp-mode
+  :hook (haskell-mode . lsp))
+#+end_src
+
+** FlyCheck
+#+begin_src elisp
+(use-package flycheck
+  :straight t
+  :init (global-flycheck-mode)
+  :config
+  (setq flycheck-check-syntax-automatically '(save)
+        flycheck-disabled-checkers '(python-flake8 python-pyright)))
 #+end_src
 
 ** Code Folding
@@ -388,64 +674,125 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   (leader-def "p" 'projectile-command-map)
   (:keymaps 'projectile-command-map
   "d" 'projectile-remove-known-project
-  "a" 'projectile-add-known-project
-))
+  "a" 'projectile-add-known-project))
+#+end_src
+
+** Mu4e
+#+begin_src elisp
+(add-to-list 'exec-path "/usr/local/share/emacs/site-lisp/mu4e/")
+(use-package mu4e
+  :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
+  :straight nil
+  :config
+  (setq mu4e-change-filenames-when-moving t)
+  ;; update every 3 minutes
+  (setq mu4e-update-interval (* 3 60))
+  (setq mu4e-get-mail-command "mbsync -a")
+  ;; mail in the mail directory
+  (setq mu4e-maildir-list (list "~/mail"))
+  ;; set all the different folders
+  (setq mu4e-drafts-folder "/[Gmail]/Drafts")
+  (setq mu4e-sent-folder   "/[Gmail]/Sent Mail")
+  (setq mu4e-refile-folder "/[Gmail]/All Mail")
+  (setq mu4e-trash-folder  "/[Gmail]/Trash")
+  ;; shortcuts
+  (setq mu4e-maildir-shortcuts
+        '(("/Inbox" . ?i)
+          ("/[Gmail]/Sent Mail" . ?s)
+          ("/[Gmail]/All Mail" . ?a)
+          ("/[Gmail]/Trash" . ?t)
+          ("/[Gmail]/Drafts" . ?d)))
+  ;; read html better
+  (setq mu4e-html2text-command "html2text"))
+
+(use-package mu4e-alert
+  :straight t
+  :config 
+  (mu4e-alert-set-default-style 'libnotify) 
+  (add-hook 'after-init-hook #'mu4e-alert-enable-notifications))
+
 #+end_src
 
 * Prettifying
-** Adjust sizes
+** Rougier
 #+begin_src elisp
+(use-package svg-tag-mode
+  :straight
+  (:type git
+         :host github
+         :repo "rougier/svg-tag-mode"
+         :files ("svg-tag-mode.el")))
+#+end_src
+
+** Set the frames and theme
+#+begin_src elisp
+;; load a theme
+;; (use-package spacemacs-common
+;;   :straight spacemacs-theme
+;;   :init (load-theme 'spacemacs-light t))
+(use-package material-theme
+  :straight t
+  :init (load-theme 'material-light t))
 (setq default-frame-alist
       (append (list
-              '(vertical-scroll-bars . nil)
-              '(internal-border-width . 24)
-              '(left-fringe    . 1)
-              '(right-fringe   . 1)
-              '(tool-bar-lines . 0)
-              '(menu-bar-lines . 0))))
+               '(vertical-scroll-bars . nil)
+               '(internal-border-width . 24)
+               '(left-fringe    . 1)
+               '(right-fringe   . 1)
+               '(tool-bar-lines . 0)
+               '(menu-bar-lines . 0))))
 
-(defun nilays-set-fonts ()
-    (set-face-attribute 'variable-pitch nil :font "Iosevka Medium Extended-26")
-    (set-face-attribute 'fixed-pitch nil :font "Iosevka Medium Extended-22")
-    (set-face-attribute 'default nil :font "Iosevka Medium Extended-22"))
-(nilays-set-fonts)
+(defun nilays-set-display ()
+  ;; fonts
+  (set-face-attribute 'variable-pitch nil :font "Source Code Pro Medium-26")
+  (set-face-attribute 'fixed-pitch nil :font "Source Code Pro Medium-24")
+  (set-face-attribute 'default nil :font "Source Code Pro Medium-24")
+  ;; (set-face-attribute 'variable-pitch nil :font "Iosevka Medium Extended-26")
+  ;; (set-face-attribute 'fixed-pitch nil :font "Iosevka Medium Extended-22")
+  ;; (set-face-attribute 'default nil :font "Iosevka Medium Extended-22")
+  ;; theme
+  (load-theme 'material-light t)
+)
+
+(if (daemonp)
+    (add-hook 'after-make-frame-functions
+              (lambda (frame)
+                (select-frame frame)
+                (nilays-set-display)))
+  (nilays-set-display))
+#+end_src
+
+** Visuals
+#+begin_src elisp
+;; random stuff
+(scroll-bar-mode -1)
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(global-hl-line-mode)
+;; disable the scratch message stuff
+(setq initial-scratch-message nil)
+;; max column width
+(setq-default fill-column 100)
+;; margins
+(setq-default left-margin-width 1 right-margin-width 1)
 #+end_src
 
 ** Modeline
 #+begin_src elisp
-(use-package doom-modeline
+;; (use-package doom-modeline
+;;   :straight t
+;;   :config
+;;   (column-number-mode 1)
+;;   (setq doom-modeline-height 10
+;; 	    doom-modeline-bar-width 3
+;; 	    doom-modeline-mu4e t))
+(use-package spaceline
   :straight t
-  :init (doom-modeline-mode 1))
+  :init 
+  (setq powerline-height 50) 
+  (setq powerline-default-separator 'wave)
+  :config 
+  (spaceline-spacemacs-theme)
+  (spaceline-toggle-hud-off)
+  (spaceline-toggle-minor-modes-off))
 #+end_src
-
-** Theme
-#+begin_src elisp
-;; load a theme
-(use-package spacemacs-common
-  :straight spacemacs-theme)
-;; :init (load-theme 'spacemacs-light t)
-#+end_src
-
-** Frame Hook
-#+begin_src elisp
-(defun nilays-appearance-setup (frame)
-  (with-selected-frame frame
-    (remove-hook 'after-make-frame-functions 'nilay-appearance-setup)
-
-    (when (functionp 'scroll-bar-mode) (scroll-bar-mode -1))
-    (when (functionp 'tool-bar-mode) (tool-bar-mode -1))
-    (when (functionp 'menu-bar-mode) (menu-bar-mode -1))
-
-    (load-theme 'spacemacs-light t)
-    (nilays-set-fonts)
-
-    (global-hl-line-mode)
-
-    (setq-default system-time-locale "C")))
-
-(if (daemonp)
-    (add-hook 'after-make-frame-functions 'nilays-appearance-setup)
-  (nilays-appearance-setup (car (frame-list))))
-#+end_src
-
-

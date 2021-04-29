@@ -20,16 +20,13 @@ plugins=(vi-mode git tmux)
 
 source $ZSH/oh-my-zsh.sh
 
-
 #  +--------------------------------------------------+
 #  |                       PATH                       |
 #  +--------------------------------------------------+
 export PATH=$PATH:~/.local/bin:~/.cargo/bin/
-export PATH="$HOME/.pyenv/bin:$PATH"
-export PATH=$PATH:~/.pyenv/shims/
 export PATH=$PATH:/home/offendo/.gem/ruby/2.7.0/bin
-export PATH="$PYENV_ROOT/bin:$PATH"
-# export TEXMFLOCAL=$TEXMFLOCAL:/usr/share/texmf-dist/
+export PATH=$PATH:$PYENV_ROOT/shims/
+export PATH=$PATH:$PYENV_ROOT/bin
 
 
 #  +--------------------------------------------------+

@@ -21,13 +21,15 @@ plugins=(vi-mode git tmux)
 source $ZSH/oh-my-zsh.sh
 
 #  +--------------------------------------------------+
-#  |                       PATH                       |
+#  |              DISABLE THE DANG BEEP               |
 #  +--------------------------------------------------+
-export PATH=$PATH:~/.local/bin:~/.cargo/bin/
-export PATH=$PATH:/home/offendo/.gem/ruby/2.7.0/bin
-export PATH=$PATH:$PYENV_ROOT/shims/
-export PATH=$PATH:$PYENV_ROOT/bin
-
+if [[ $XDG_SESSION_TYPE = "x11" ]]; then
+    xset -b
+elif [[ $TERM = "xterm-256color" ]]; then
+    xset -b
+else
+    setterm -blength 0
+fi
 
 #  +--------------------------------------------------+
 #  |                      ALIAS                       |

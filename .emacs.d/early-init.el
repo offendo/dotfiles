@@ -22,4 +22,4 @@
 
 
 ;; snippet to prevent autoloads from being compiled
-;; (setq comp-deferred-compilation-deny-list '("\\(?:[^z-a]*-autoloads\\.el$\\)" "\\(?:[^z-a]*-setup\\.el$\\)"))
+(setq comp-deferred-compilation-deny-list '("/usr/local/share/emacs/site-lisp/mu4e/mu4e-utils.el" "powerline"))

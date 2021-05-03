@@ -1,3 +1,14 @@
+#  +--------------------------------------------------+
+#  |                       PATH                       |
+#  +--------------------------------------------------+
+export PATH=$PATH:~/.local/bin:~/.cargo/bin/
+export PATH=$PATH:/home/offendo/.gem/ruby/2.7.0/bin
+export PATH=$PATH:$PYENV_ROOT/shims/
+export PATH=$PATH:$PYENV_ROOT/bin
+
+export DENO_INSTALL="/home/offendo/.deno"
+export PATH="$DENO_INSTALL/bin:$PATH"
+
 export EDITOR=/usr/local/bin/emacsclient
 export GTK2_RC_FILES="$HOME/.gtkrc-2.0"
 export QT_QPA_PLATFORMTHEME="qt5ct"
@@ -6,22 +17,3 @@ export GDK_DPI_SCALE=1.0
 export QT_AUTO_SCREEN_SCALE_FACTOR=1
 export QT_FONT_DPI=192
 
-#  +--------------------------------------------------+
-#  |              DISABLE THE DANG BEEP               |
-#  +--------------------------------------------------+
-if [[ $XDG_SESSION_TYPE = "x11" ]]; then
-    xset -b
-elif [[ $TERM = "xterm-256color" ]]; then
-    xset -b
-else
-    setterm -blength 0
-fi
-
-
-#  +--------------------------------------------------+
-#  |                       PATH                       |
-#  +--------------------------------------------------+
-export PATH=$PATH:~/.local/bin:~/.cargo/bin/
-export PATH=$PATH:/home/offendo/.gem/ruby/2.7.0/bin
-export PATH=$PATH:$PYENV_ROOT/shims/
-export PATH=$PATH:$PYENV_ROOT/bin

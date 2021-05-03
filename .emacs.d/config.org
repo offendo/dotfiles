@@ -11,51 +11,6 @@
 (straight-use-package 'use-package) 
 #+end_src
 
-** Evil Mode
-Anything related to the fantastic evil-mode. Primarily extensions and stuff.
-#+begin_src elisp
-(use-package evil
-    :init
-    (setq evil-want-keybinding nil)
-    (setq evil-want-integration t)
-    :straight t
-    :config
-    (evil-mode 1)
-    (define-key key-translation-map (kbd "ESC") (kbd "C-g")))
-(use-package evil-collection ;; make evil available everywhere
-    :after evil
-    :straight t
-    :init (evil-collection-init))
-(use-package undo-fu ;; make undo system work better
-    :after evil
-    :straight t
-    :config
-    (evil-set-undo-system 'undo-fu)
-    (setq evil-want-fine-undo t))
-(use-package evil-goggles ;; show what I'm editing in a flash
-    :after evil
-    :straight t
-    :config
-    (evil-goggles-mode)
-    (setq evil-goggles-pulse t)
-    (setq evil-goggles-duration 0.100))
-(use-package evil-surround
-  :straight t
-  :config
-  (global-evil-surround-mode 1))
-(use-package evil-org
-  :straight t
-  :after org
-  :hook (org-mode . (lambda () evil-org-mode))
-  :config
-  (require 'evil-org-agenda)
-  (evil-org-agenda-set-keys))
-(use-package evil-matchit
-  :straight t
-  :after evil
-  :config (global-evil-matchit-mode 1))
-#+end_src
-
 ** General
 Check out the [[https://github.com/noctuid/general.el][general]] page for more information.
 #+begin_src elisp
@@ -65,6 +20,87 @@ Check out the [[https://github.com/noctuid/general.el][general]] page for more i
     (general-evil-setup t))
 #+end_src
 
+** Evil Mode
+*** Evil
+#+begin_src elisp
+(use-package evil
+    :init
+    (setq evil-want-keybinding nil)
+    (setq evil-want-integration t)
+    (setq evil-want-Y-yank-to-eol t) ;; Y yanks foward
+    :straight t
+    :config
+    (evil-mode 1)
+    (define-key key-translation-map (kbd "ESC") (kbd "C-g")))
+#+end_src
+
+*** Collection
+#+begin_src elisp
+(use-package evil-collection ;; make evil available everywhere
+    :after evil
+    :straight t
+    :init (evil-collection-init))
+#+end_src
+
+*** Undo-fu
+#+begin_src elisp
+(use-package undo-fu ;; make undo system work better
+    :after evil
+    :straight t
+    :config
+    (evil-set-undo-system 'undo-fu)
+    (setq evil-want-fine-undo t))
+#+end_src
+
+*** Goggles
+#+begin_src elisp
+(use-package evil-goggles ;; show what I'm editing in a flash
+    :after evil
+    :straight t
+    :config
+    (evil-goggles-mode)
+    (setq evil-goggles-pulse t)
+    (setq evil-goggles-duration 0.100))
+#+end_src
+
+*** Surround
+#+begin_src elisp
+(use-package evil-surround
+  :straight t
+  :config
+  (global-evil-surround-mode 1))
+#+end_src
+
+*** Org-mode stuff
+#+begin_src elisp
+(use-package evil-org
+  :straight t
+  :after org
+  :hook (org-mode . (lambda () evil-org-mode))
+  :config
+  (require 'evil-org-agenda)
+  (evil-org-agenda-set-keys))
+#+end_src
+
+*** Match-it
+#+begin_src elisp
+(use-package evil-matchit
+  :straight t
+  :after evil
+  :config (global-evil-matchit-mode 1))
+#+end_src
+
+*** Exchange
+#+begin_src elisp
+(use-package evil-exchange
+  :straight t
+  :general 
+  (:keymaps 'override
+   :states '(normal visual)
+   "gx" 'evil-exchange
+   "gX" 'evil-exchange-cancel))
+#+end_src
+
 * Emacs Stuff
 ** Startup Time
 This doesn't work with early-init though, so it'll take some work if I ever want to use it
@@ -72,77 +108,6 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 ;; Startup time
 (use-package esup
   :straight t)
-#+end_src
-
-** Built-ins
-*** Personal info
-#+begin_src elisp
-(setq user-mail-address "nilaypatel2@gmail.com")
-#+end_src
-
-*** Indentation
-#+begin_src elisp
-;; Expand tab to spaces
-(setq indent-tabs-mode nil)
-(setq tab-width 2)
-#+end_src
-
-*** Caching
-#+begin_src elisp
-;; cache-directory
-(setq nilays-cache-dir (concat user-emacs-directory ".cache/"))
-;; save history
-(setq savehist-file (concat nilays-cache-dir "savehist"))
-(savehist-mode 1)
-;; backup files all in one place
-(setq backup-directory-alist
-        `((".*" . ,nilays-cache-dir)))
-(setq auto-save-file-name-transforms
-        `((".*" ,nilays-cache-dir t)))
-;; remove lock files
-(setq create-lockfiles nil)
-#+end_src
-
-*** Recentf
-#+begin_src elisp
-;; recentf-mode
-(recentf-mode 1)
-(setq recentf-max-menu-items 25)
-(setq recentf-max-saved-items 25)
-(setq recentf-save-file (concat nilays-cache-dir "recentf" ))
-#+end_src
-
-*** Spelling
-#+begin_src elisp
-;; Ispell dicitonary
-(setq ispell-dictionary "en")
-#+end_src
-
-*** Path
-#+begin_src elisp
-;; add to path
-(use-package exec-path-from-shell
-  :straight t
-  :init (when (daemonp) (exec-path-from-shell-initialize)))
-#+end_src
-
-*** Help window
-#+begin_src elisp
-;; select help window on open
-(setq help-window-select t)
-(add-to-list 'display-buffer-alist
-             '((lambda(bufname _) (with-current-buffer bufname (equal major-mode 'help-mode)))
-               (display-buffer-reuse-window display-buffer-at-bottom)
-               (reusable-frames . visible)
-               (window-height . 0.25)))
-#+end_src
-
-*** Tramp Mode
-#+begin_src elisp
-(use-package tramp
-  :straight nil
-  :config 
-  (setq tramp-default-method "ssh"))
 #+end_src
 
 ** Keybindings
@@ -198,8 +163,98 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :prefix "SPC o"
   :keymaps 'override
   :non-normal-prefix "M-SPC o"
-  :prefix-command 'org
+  :prefix-command 'org-stuff
   :prefix-map 'leader-org-prefix-map)
+
+(general-create-definer leader-org-roam-def
+  :states '(normal insert emacs)
+  :prefix "SPC o n"
+  :keymaps 'org-roam-mode-map
+  :non-normal-prefix "M-SPC o n"
+  :prefix-command 'org-roam-stuff
+  :prefix-map 'leader-org-roam-prefix-map)
+
+
+(general-create-definer leader-misc-def
+  :states '(normal insert emacs)
+  :prefix "SPC u"
+  :keymaps 'global
+  :non-normal-prefix "M-SPC u"
+  :prefix-command 'misc-stuff
+  :prefix-map 'leader-misc-prefix-map)
+#+end_src
+
+** Built-ins
+*** Personal info
+#+begin_src elisp
+(setq user-mail-address "nilaypatel2@gmail.com")
+#+end_src
+
+*** Indentation
+#+begin_src elisp
+;; Expand tab to spaces
+(setq indent-tabs-mode nil)
+(setq tab-width 2)
+#+end_src
+
+*** Caching
+#+begin_src elisp
+;; cache-directory
+(setq nilays-cache-dir (concat user-emacs-directory ".cache/"))
+;; save history
+(setq savehist-file (concat nilays-cache-dir "savehist"))
+(savehist-mode 1)
+;; backup files all in one place
+(setq backup-directory-alist
+        `((".*" . ,nilays-cache-dir)))
+(setq auto-save-file-name-transforms
+        `((".*" ,nilays-cache-dir t)))
+;; remove lock files
+(setq create-lockfiles nil)
+#+end_src
+
+*** Recentf
+#+begin_src elisp
+;; recentf-mode
+(recentf-mode 1)
+(setq recentf-max-menu-items 25)
+(setq recentf-max-saved-items 25)
+(setq recentf-save-file (concat nilays-cache-dir "recentf" ))
+#+end_src
+
+*** Path
+#+begin_src elisp
+;; add to path
+(use-package exec-path-from-shell
+  :straight t
+  :init (when (daemonp) (exec-path-from-shell-initialize)))
+#+end_src
+
+*** Help window
+#+begin_src elisp
+;; select help window on open
+(setq help-window-select t)
+(add-to-list 'display-buffer-alist
+             '((lambda(bufname _) (with-current-buffer bufname (equal major-mode 'help-mode)))
+               (display-buffer-reuse-window display-buffer-at-bottom)
+               (reusable-frames . visible)
+               (window-height . 0.25)))
+#+end_src
+
+*** Tramp Mode
+#+begin_src elisp
+(use-package tramp
+  :straight nil
+  :config 
+  (setq tramp-default-method "ssh"))
+#+end_src
+
+*** Scrolling
+#+begin_src elisp
+(general-nmap "<up>" 'scroll-up-line)
+(general-nmap "<down>" 'scroll-down-line)
+(setq scroll-step           1
+      scroll-conservatively 10000)
 #+end_src
 
 ** Text Objects
@@ -279,6 +334,12 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   (setq python-indent-guess-indent-offset-verbose nil))
 #+end_src
 
+** Haskell
+#+begin_src elisp
+(use-package haskell-mode
+  :defer t
+  :straight t)
+#+end_src
 * Cool Things
 ** Compilation Mode
 #+begin_src elisp
@@ -295,6 +356,16 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 (use-package ansi-color
   :straight nil
   :init (add-hook 'compilation-filter-hook 'colorize-compilation-buffer))
+#+end_src
+
+** Spelling
+#+begin_src elisp
+;; Ispell dicitonary
+(setq ispell-dictionary "en")
+(use-package wordnut
+  :straight t
+  :general 
+  (leader-misc-def "k" 'wordnut-lookup-current-word ))
 #+end_src
 
 ** CSV Mode
@@ -412,21 +483,13 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :custom
   (org-roam-directory "~/org/wiki/")
   :general
-  (leader-org-def 
-   :ignore t 
-   :which-key "roam"
-   :keymaps 'org-roam-mode-map
-   :states '(normal)
-    "nl" 'org-roam
-    "nf" 'org-roam-find-file
-    "ng" 'org-roam-graph)
-  (leader-org-def
-   :ignore t 
-   :which-key "roam"
-   :keymaps 'org-mode-map
-   :states '(normal)
-    "ni" 'org-roam-insert
-    "nI" 'org-roam-insert-immediate))
+  (leader-org-roam-def 
+    "l" 'org-roam
+    "f" 'org-roam-find-file
+    "g" 'org-roam-graph)
+  (leader-org-roam-def
+    "i" 'org-roam-insert
+    "I" 'org-roam-insert-immediate))
 #+end_src
 
 ** Selectrum et al.
@@ -457,10 +520,13 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 ;; Consult
 (use-package consult
   :straight t
+  :config
+  (setq xref-show-xrefs-function 'consult-xref
+        xref-show-definitions-function 'consult-xref)
   :general
   (leader-def "," 'consult-buffer)
   (leader-def "y" 'consult-register)
-  (leader-def "m" 'consult-mark)
+  (leader-def "m" 'consult-imenu)
   (leader-def "f" 'consult-ripgrep))
 ;; Marginalia
 (use-package marginalia
@@ -556,8 +622,12 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :hook (prog-mode . format-all-mode)
   :general (leader-code-def "f" 'format-all-buffer)
   :init (add-hook 'prog-mode-hook 'format-all-ensure-formatter)
-  :config 
-  (setq format-all-formatters (list '("haskell" . 'ormolu) '("python" . 'black) )))
+  :config
+  (setq format-all-formatters (list '("haskell" . 'ormolu) '("python" . 'black) ))
+  (setq bibtex-dialect 'biblatex
+        bibtex-align-at-equal-sign t
+        bibtex-text-indentation 20)
+  )
 #+end_src
 
 ** Vterm
@@ -582,6 +652,11 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 (use-package lsp-mode
   :straight t
   :defer t
+  :general
+  ;; changes K to use LSP
+  (:keymaps '(lsp-mode-map)
+   :states 'normal
+   "K"  'lsp-describe-thing-at-point)
   :init
   (setq lsp-diagnostics-provider :flycheck))
 
@@ -600,10 +675,6 @@ This doesn't work with early-init though, so it'll take some work if I ever want
         lsp-signature-auto-activate t
         lsp-enable-symbol-highlighting nil)
  :general
- ;; changes K to use LSP
- (:keymaps '(global lsp-mode-map)
-  :states 'normal
-  [remap evil-lookup]  'lsp-describe-thing-at-point)
  ;; goto stuff
  (:keymaps '(global lsp-mode-map)
   :states 'normal
@@ -630,9 +701,6 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 
 *** Haskell
 #+begin_src elisp
-(use-package haskell-mode
-  :straight t)
-  
 (use-package lsp-haskell
   :straight t
   :after lsp-mode
@@ -666,15 +734,16 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 #+begin_src elisp
 (use-package projectile
   :straight t
-  :init 
+  :init
   (setq projectile-cache-file (concat nilays-cache-dir ".projectile.cache"))
   (projectile-mode +1)
   (setq projectile-auto-discover nil)
   :general
   (leader-def "p" 'projectile-command-map)
   (:keymaps 'projectile-command-map
-  "d" 'projectile-remove-known-project
-  "a" 'projectile-add-known-project))
+	    "d" 'projectile-remove-known-project
+	    "a" 'projectile-add-known-project
+	    "m" 'consult-project-imenu))
 #+end_src
 
 ** Mu4e
@@ -709,6 +778,7 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :straight t
   :config 
   (mu4e-alert-set-default-style 'libnotify) 
+  (setq mu4e-alert-email-notification-types '(count))
   (add-hook 'after-init-hook #'mu4e-alert-enable-notifications))
 
 #+end_src
@@ -732,7 +802,9 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 ;;   :init (load-theme 'spacemacs-light t))
 (use-package material-theme
   :straight t
-  :init (load-theme 'material-light t))
+  :init
+  (load-theme 'material-light t))
+
 (setq default-frame-alist
       (append (list
                '(vertical-scroll-bars . nil)
@@ -744,15 +816,14 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 
 (defun nilays-set-display ()
   ;; fonts
-  (set-face-attribute 'variable-pitch nil :font "Source Code Pro Medium-26")
-  (set-face-attribute 'fixed-pitch nil :font "Source Code Pro Medium-24")
-  (set-face-attribute 'default nil :font "Source Code Pro Medium-24")
+  (set-face-attribute 'variable-pitch nil :font "Source Code Pro Medium-13")
+  (set-face-attribute 'fixed-pitch nil :font "Source Code Pro Medium-12")
+  (set-face-attribute 'default nil :font "Source Code Pro Medium-12")
   ;; (set-face-attribute 'variable-pitch nil :font "Iosevka Medium Extended-26")
   ;; (set-face-attribute 'fixed-pitch nil :font "Iosevka Medium Extended-22")
   ;; (set-face-attribute 'default nil :font "Iosevka Medium Extended-22")
   ;; theme
-  (load-theme 'material-light t)
-)
+  (load-theme 'material-light t))
 
 (if (daemonp)
     (add-hook 'after-make-frame-functions
@@ -764,11 +835,17 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 
 ** Visuals
 #+begin_src elisp
-;; random stuff
+;; turn off ugly stuff
 (scroll-bar-mode -1)
 (tool-bar-mode -1)
 (menu-bar-mode -1)
+;; highlight current line
 (global-hl-line-mode)
+;; make lines wrap so no horizontal scrolling
+(global-visual-line-mode)
+;; highlight matching parenthe
+(show-paren-mode)
+(setq show-paren-delay 0)
 ;; disable the scratch message stuff
 (setq initial-scratch-message nil)
 ;; max column width
@@ -789,10 +866,13 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 (use-package spaceline
   :straight t
   :init 
-  (setq powerline-height 50) 
-  (setq powerline-default-separator 'wave)
-  :config 
+  (setq powerline-height 50
+        powerline-default-separator 'wave
+        spaceline-auto-compile-p nil) ;; don't autocompile
+  :config
   (spaceline-spacemacs-theme)
   (spaceline-toggle-hud-off)
+  (spaceline-toggle-mu4e-alert-segment-off)
+  (spaceline-toggle-version-control-off)
   (spaceline-toggle-minor-modes-off))
 #+end_src

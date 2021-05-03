@@ -53,7 +53,7 @@ export LS_COLORS="$LS_COLORS:ow=1;34:tw=1;34:"
 export EDITOR='nvim'
 export VISUAL='nvim'
 export PYENV_ROOT="$HOME/.pyenv"
-export BAT_THEME='Dracula'
+export BAT_THEME='ansi'
 export GITPAGER='bat'
 export MANPAGER='bat'
 

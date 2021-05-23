@@ -50,12 +50,13 @@ alias e="emacsclient -t"
 #  |                    OTHER VARS                    |
 #  +--------------------------------------------------+
 export LS_COLORS="$LS_COLORS:ow=1;34:tw=1;34:"
-export EDITOR='nvim'
-export VISUAL='nvim'
+export EDITOR='emacsclient'
+export VISUAL='emacsclient'
 export PYENV_ROOT="$HOME/.pyenv"
 export BAT_THEME='ansi'
 export GITPAGER='bat'
 export MANPAGER='bat'
+export PIPENV_VERBOSITY=-1
 
 #  +--------------------------------------------------+
 #  |                 RANDOM SETTINGS                  |
@@ -164,11 +165,6 @@ bindkey -M viins '^[[A' history-beginning-search-backward-end \
 #  |                    COMPLETION                    |
 #  +--------------------------------------------------+
 
-function _set-monitor(){
-    _describe 'command' "('l: set the left monitor as primary' 'm: set the middle monitor as primary' 'r: set the right monitor as primary')"
-}
-compdef _set-monitor set-monitor
-
 vterm_printf(){
     if [ -n "$TMUX" ]; then
         # Tell tmux to pass the escape sequences through
@@ -186,3 +182,11 @@ function stopwatch(){
        echo -ne "$(date -u --date @$((`date +%s` - $date1)) +%H:%M:%S)\r";
     done
 }
+
+#compdef pipenv
+_pipenv() {
+  eval $(env COMMANDLINE="${words[1,$CURRENT]}" _PIPENV_COMPLETE=complete-zsh  pipenv)
+}
+if [[ "$(basename -- ${(%):-%x})" != "_pipenv" ]]; then
+  compdef _pipenv pipenv
+fi

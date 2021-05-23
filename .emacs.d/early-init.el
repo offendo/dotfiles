@@ -1,6 +1,7 @@
+
 ;; This is to make sure straight.el does all the heavy lifting instead of package.el
 ;;; Code:
-(setq straight-check-for-modifications nil)
+(defvar straight-check-for-modifications nil)
 (setq package-enable-at-startup nil)
 
 ;; disable splash-screen

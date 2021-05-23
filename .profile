@@ -17,3 +17,14 @@ export GDK_DPI_SCALE=1.0
 export QT_AUTO_SCREEN_SCALE_FACTOR=1
 export QT_FONT_DPI=192
 
+
+#  +--------------------------------------------------+
+#  |              DISABLE THE DANG BEEP               |
+#  +--------------------------------------------------+
+if [[ $XDG_SESSION_TYPE = "x11" ]]; then
+    xset -b
+elif [[ $TERM = "xterm-256color" ]]; then
+    xset -b
+else
+    setterm -blength 0
+fi

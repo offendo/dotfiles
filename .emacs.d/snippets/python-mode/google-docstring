@@ -1,7 +1,7 @@
 # -*- mode: snippet -*-
 # Insert Google style docstring and function definition.
 # name: google-docstring
-# key: pydoc
+# key: google-pydoc
 # type: snippet
 # --
 def ${1:name}($2):

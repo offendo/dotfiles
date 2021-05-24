@@ -1,0 +1,60 @@
+Section "ServerLayout"
+    Identifier     "Layout0"
+    Screen      0  "Screen0" 0 0
+EndSection
+
+ Section "Files"
+     ModulePath      "/usr/lib/x86_64-linux-gnu/nvidia-440/xorg"
+     ModulePath      "/usr/lib/xorg/modules"
+ EndSection
+
+Section "Monitor"
+    Identifier     "eDP-1-1"
+    VendorName     "Unknown"
+    Option         "Primary" "true"
+    ModelName      "Unknown"
+EndSection
+
+Section "Monitor"
+    # HorizSync source: edid, VertRefresh source: edid
+    Identifier     "DP-4"
+    VendorName     "Unknown"
+    Option         "LeftOf" "eDP-1-1"
+    ModelName      "Acer XB253Q"
+EndSection
+
+Section "Monitor"
+    # HorizSync source: edid, VertRefresh source: edid
+    Identifier     "DP-0"
+    VendorName     "Unknown"
+    Option         "RightOf" "eDP-1-1"
+    ModelName      "Acer XB253Q"
+EndSection
+
+Section "Device"
+    Identifier     "NVIDIAGPU"
+    Driver         "nvidia"
+    BusID          "PCI:11:00:0"
+    VendorName     "NVIDIA Corporation"
+    Option         "AllowExternalGpus" "True"
+EndSection
+
+Section "Device"
+    Identifier     "INTELGPU"
+    Driver         "modesetting"
+    BusID          "PCI:00:02:0"
+    VendorName     "Intel"
+    # Option         "AllowExternalGpus" "True"
+EndSection
+
+Section "Screen"
+    Identifier     "Screen0"
+    Device         "NVIDIAGPU"
+    Monitor        "eDP-1-1"
+    Monitor        "DP-0"
+    Monitor        "DP-4"
+    DefaultDepth    24
+    SubSection     "Display"
+        Depth       24
+    EndSubSection
+EndSection

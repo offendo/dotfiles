@@ -3,10 +3,10 @@ Section "ServerLayout"
     Screen      0  "Screen0" 0 0
 EndSection
 
- Section "Files"
-     ModulePath      "/usr/lib/x86_64-linux-gnu/nvidia-440/xorg"
-     ModulePath      "/usr/lib/xorg/modules"
- EndSection
+# Section "Files"
+#     ModulePath      "/usr/lib/x86_64-linux-gnu/nvidia-440/xorg"
+#     ModulePath      "/usr/lib/xorg/modules"
+# EndSection
 
 Section "Monitor"
     Identifier     "eDP-1-1"

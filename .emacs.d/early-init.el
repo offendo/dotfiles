@@ -7,7 +7,6 @@
 ;; disable splash-screen
 (setq inhibit-startup-screen t)
 
-;; Initialization snippet
 (defvar bootstrap-version)
 (let ((bootstrap-file
        (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
@@ -20,7 +19,6 @@
       (goto-char (point-max))
       (eval-print-last-sexp)))
   (load bootstrap-file nil 'nomessage))
-
 
 ;; snippet to prevent autoloads from being compiled
 (setq comp-deferred-compilation-deny-list '("/usr/local/share/emacs/site-lisp/mu4e/mu4e-utils.el" "powerline"))

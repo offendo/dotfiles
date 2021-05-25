@@ -197,11 +197,9 @@ for_window [title="\*Emacs Anywhere\*"] floating enable
 #  |                      LAUNCH                      |
 #  +--------------------------------------------------+
 # {{{
-exec_always --no-startup-id "python3.9 /usr/local/bin/alternating_layouts.py"
+exec_always --no-startup-id "python3.9 ~/.local/bin/alternating_layouts.py"
 exec_always --no-startup-id set-background
 # polybar
-exec_always bash -c "sleep 2 && ~/.config/polybar/launch.sh --panels"
-# the kde bar
-# exec_always bash -c "sleep 1.5 && kquitapp5 plasmashell && kstart5 plasmashell"
+exec_always bash -c "sleep 2 && ~/.config/polybar/panels/launch.sh"
 # }}}
 

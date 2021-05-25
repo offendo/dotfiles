@@ -24,16 +24,17 @@ Check out the [[https://github.com/noctuid/general.el][general]] page for more i
 *** Evil
 #+begin_src elisp
 (use-package evil
-    :init
-    (setq evil-want-keybinding nil)
-    (setq evil-want-integration t)
-    (setq evil-want-Y-yank-to-eol t) ;; Y yanks foward
-    :straight t
-    :config
-    (evil-mode 1)
-    (define-key key-translation-map (kbd "ESC") (kbd "C-g"))
-    :general
-    (:keymaps 'evil-motion-state-map "RET" nil))
+  :init
+  (setq evil-want-keybinding nil)
+  (setq evil-want-integration t)
+  (setq evil-want-Y-yank-to-eol t) ;; Y yanks foward
+  :straight t
+  :config
+  (evil-mode 1)
+  (when (display-graphic-p)
+    (define-key key-translation-map (kbd "ESC") (kbd "C-g")))
+  :general
+  (:keymaps 'evil-motion-state-map "RET" nil))
 #+end_src
 
 *** Collection
@@ -69,7 +70,6 @@ Check out the [[https://github.com/noctuid/general.el][general]] page for more i
 #+begin_src elisp
 (use-package evil-mc
   :straight t
-  :hook (evil-mode . global-evil-mc-mode)
   :general
   (:states '(normal visual)
    "C-." 'evil-mc-make-and-goto-next-match
@@ -80,7 +80,8 @@ Check out the [[https://github.com/noctuid/general.el][general]] page for more i
    "C-g" 'evil-mc-undo-all-cursors
    "C-l" 'evil-mc-make-cursor-in-visual-selection-beg
    "C-x" 'evil-mc-undo-last-added-cursor)
-  (:keymaps 'mc/keymap "RET" nil))
+  (:keymaps 'mc/keymap "RET" nil)
+  :init (global-evil-mc-mode))
 #+end_src
 
 *** Surround
@@ -328,6 +329,14 @@ This doesn't work with early-init though, so it'll take some work if I ever want
         (make-directory dir t)))))
 #+end_src
 
+*** Dired
+#+begin_src elisp
+(setq vc-follow-symlinks t)
+(add-hook 'dired-mode-hook
+      (lambda ()
+        (dired-hide-details-mode)))
+#+end_src
+
 ** Text Objects
 #+begin_src elisp
 (defmacro define-and-bind-text-object (key start-regex end-regex)
@@ -376,10 +385,10 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 * Coding
 ** Magit
 #+begin_src elisp
-  (use-package magit
-    :straight t
-    :general
-    (leader-def "g" 'magit-status))
+(use-package magit
+  :straight t
+  :general
+  (leader-def "g" 'magit-status))
 #+end_src
 
 ** Compilation Mode
@@ -628,14 +637,14 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :after selectrum
   :general
   (:keymaps 'minibuffer-local-map
-        "M-A"  'marginalia-cycle)
+            "M-A"  'marginalia-cycle)
   :init
   (marginalia-mode)
-  (marginalia-cycle)
-  (advice-add #'marginalia-cycle
-          :after (lambda ()
-               (when (bound-and-true-p selectrum-mode)
-             (selectrum-exhibit 'keep-selected)))))
+  (advice-add
+   #'marginalia-cycle
+   :after (lambda ()
+            (when (bound-and-true-p selectrum-mode)
+              (selectrum-exhibit 'keep-selected)))))
 #+end_src
 
 *** Embark 
@@ -996,26 +1005,26 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 
 ** Modeline
 #+begin_src elisp
-(use-package doom-modeline
-  :straight t
-  :config
-  (column-number-mode 1)
-  (setq doom-modeline-height 25
-        doom-modeline-bar-width 3
-        doom-modeline-mu4e nil
-        doom-modeline-buffer-encoding nil)
-  (doom-modeline-mode))
-;; (use-package spaceline
+;; (use-package doom-modeline
 ;;   :straight t
-;;   :init
-;;   (setq powerline-height 50
-;;         powerline-default-separator 'wave
-;;         spaceline-auto-compile-p nil) ;; don't autocompile
-;;   (spaceline-spacemacs-theme)
-;;   (spaceline-toggle-hud-off)
-;;   (spaceline-toggle-mu4e-alert-segment-off)
-;;   (spaceline-toggle-version-control-off)
-;;   (spaceline-toggle-minor-modes-off))
+;;   :config
+;;   (column-number-mode 1)
+;;   (setq doom-modeline-height 25
+;;         doom-modeline-bar-width 3
+;;         doom-modeline-mu4e nil
+;;         doom-modeline-buffer-encoding nil)
+;;   (doom-modeline-mode))
+(use-package spaceline
+  :straight t
+  :init
+  (setq powerline-height 25
+        powerline-default-separator 'wave
+        spaceline-auto-compile-p nil) ;; don't autocompile
+  (spaceline-spacemacs-theme)
+  (spaceline-toggle-hud-off)
+  (spaceline-toggle-mu4e-alert-segment-off)
+  (spaceline-toggle-version-control-off)
+  (spaceline-toggle-minor-modes-off))
 #+end_src
 
 ** Highlight TODOs

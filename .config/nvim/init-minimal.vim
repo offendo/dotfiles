@@ -1,3 +1,4 @@
+
 "   +--------------------------------------------------+
 "  |                     PLUGINS                      |
 "  +--------------------------------------------------+
@@ -6,12 +7,6 @@ filetype off
 let nvim_path = '~/.config/nvim/'
 call plug#begin(nvim_path . 'bundle')
 " Connecting with external software
-Plug 'neovim/nvim-lspconfig'                                            " intellisense and autocompletion
-Plug 'RishabhRD/popfix'                                                 " nvim lsp stuff
-Plug 'RishabhRD/nvim-lsputils'                                          " nvim lsp stuff
-Plug 'haorenW1025/completion-nvim'                                      " auto-completion for nvim-lsp
-Plug 'tpope/vim-fugitive'                                               " git integration
-Plug 'voldikss/vim-floaterm'                                            " floating terminal
 Plug 'junegunn/fzf.vim'                                                 " fzf 
 Plug 'junegunn/fzf'                                                     " fzf 
 " Vim nicities & features
@@ -21,14 +16,10 @@ Plug 'tpope/vim-surround'                                               " surrou
 Plug 'terryma/vim-multiple-cursors'                                     " multi-cursor
 Plug 'scrooloose/nerdcommenter'                                         " easy text commenting
 Plug 'godlygeek/tabular'                                                " tabular: align on character
-Plug 'SirVer/ultisnips'                                                 " snippets engine
 Plug 'rstacruz/vim-closer'                                              " auto pairs
 " Pretty things
 Plug 'luochen1990/rainbow'                                              " rainbow parentheses
 Plug 'drewtempelmeyer/palenight.vim'                                    " themes and airline
-Plug 'itchyny/lightline.vim'                                            " status line
-Plug 'ryanoasis/vim-devicons'                                           " dev icons
-Plug 'norcalli/nvim-colorizer.lua'                                      " colorizer for hex codes
 " Language packs
 Plug 'plasticboy/vim-markdown'
 Plug 'andys8/vim-elm-syntax', {'for': 'elm'}                            " elm support
@@ -159,8 +150,6 @@ nnoremap <c-r> :%s/\<<c-r><c-w>\>//g<left><left>
 nnoremap <leader>o moo<Esc>`o
 "change za to <leader>a
 nnoremap <leader>a za
-" vimspector
-let g:vimspector_enable_mappings = 'HUMAN'
 
 inoremap <nowait> jk <esc>
 "}}}
@@ -178,16 +167,6 @@ nnoremap <leader>d <cmd>GFiles?<cr>
 nnoremap <leader>b <cmd>Buffers<cr>
 nnoremap <leader>g <cmd>Rg<cr>
 " }}}
-
-"  +--------------------------------------------------+
-"  |                    ULTISNIPS                     |
-"  +--------------------------------------------------+
-" {{{
-let g:UltiSnipsExpandTrigger =  '<tab>'
-let g:UltiSnipsJumpForwardTrigger  = '<c-l>'
-let g:UltiSnipsJumpBackwardTrigger = '<c-h>'
-let g:UltiSnipsSnippetDirectories = ["/home/offendo/.config/nvim/UltiSnips/"]
-"}}}
 
 "  +--------------------------------------------------+
 "  |                   COMMENT BOX                    |
@@ -225,120 +204,7 @@ let g:multi_cursor_prev_key            = '<c-p>'
 let g:multi_cursor_skip_key            = '<c-x>'
 let g:multi_cursor_quit_key            = '<esc>'
 " }}}
-
-"  +--------------------------------------------------+
-"  |                     NVIM-LSP                     |
-"  +--------------------------------------------------+
-" {{{
-" Set diagnostic colors
-hi! LspDiagnosticsError guifg=LightRed
-hi! LspDiagnosticsWarning guifg=Orange
-hi! LspDiagnosticsHint guifg=LightBlue
-:lua << EOF
-local nvim_lsp = require('lspconfig')
-nvim_lsp.pyls.setup{on_attach=require'completion'.on_attach,
-  init_options = {
-    interpreter = {
-      properties =
-      {
-        InterpreterPath = vim.fn.exepath("python3.9");
-        Version = "3.9";
-      };
-    };
-    displayOptions = {};
-    analysisUpdates = true;
-    asyncStartup = true;
-  };
-}
-nvim_lsp.clangd.setup{on_attach=require'completion'.on_attach}
-nvim_lsp.hls.setup{on_attach=require'completion'.on_attach}
-nvim_lsp.elmls.setup{on_attach=require'completion'.on_attach}
-nvim_lsp.texlab.setup{
-  settings = {
-    bibtex = {
-      formatting = {
-        lineLength = 120
-      }
-    },
-    latex = {
-      build = {
-        args = { "-pdf", "-interaction=nonstopmode", "-synctex=1", "-output-directory=build", "-shell-escape"},
-        executable = "latexmk",
-        onSave = true
-      },
-      lint = {
-        onChange =  true,
-      }
-    }
-  }
-}
--- remove the floating text
-do
-    local method = 'textDocument/publishDiagnostics'
-    local default_callback = vim.lsp.handlers[method]
-    vim.lsp.handlers[method] = function(err, method, result, client_id)
-        if not result then return end
-        local uri = result.uri
-        local bufnr = vim.uri_to_bufnr(uri)
-        if not bufnr then
-            err_message("LSP.publishDiagnostics: Couldn't find buffer for ", uri)
-            return
-        end
-        vim.lsp.util.buf_clear_diagnostics(bufnr)
-        vim.lsp.util.buf_diagnostics_save_positions(bufnr, result.diagnostics)
-        vim.lsp.util.buf_diagnostics_underline(bufnr, result.diagnostics)
-        -- vim.lsp.util.buf_diagnostics_virtual_text(bufnr, result.diagnostics)
-        vim.lsp.util.buf_diagnostics_signs(bufnr, result.diagnostics)
-        vim.api.nvim_command("doautocmd User LspDiagnosticsChanged")
-    end
-end
-
--- Modify handlers
-vim.lsp.handlers['textDocument/codeAction'] = require'lsputil.codeAction'.code_action_handler
-vim.lsp.handlers['textDocument/references'] = require'lsputil.locations'.references_handler
-vim.lsp.handlers['textDocument/definition'] = require'lsputil.locations'.definition_handler
-vim.lsp.handlers['textDocument/declaration'] = require'lsputil.locations'.declaration_handler
-vim.lsp.handlers['textDocument/typeDefinition'] = require'lsputil.locations'.typeDefinition_handler
-vim.lsp.handlers['textDocument/implementation'] = require'lsputil.locations'.implementation_handler
-vim.lsp.handlers['textDocument/documentSymbol'] = require'lsputil.symbols'.document_handler
-vim.lsp.handlers['workspace/symbol'] = require'lsputil.symbols'.workspace_handler
-EOF
-
-nnoremap <silent>gd    <cmd>lua vim.lsp.buf.definition()<CR>
-nnoremap <silent>gD    <cmd>lua vim.lsp.buf.declaration()<CR>
-nnoremap <silent>gy    <cmd>lua vim.lsp.buf.implementation()<CR>
-nnoremap <silent>gr    <cmd>lua vim.lsp.buf.references()<CR>
-nnoremap <leader>rn    <cmd>lua vim.lsp.buf.rename()<cr>
-nnoremap <silent>K     <cmd>lua vim.lsp.buf.hover()<CR>
-nnoremap L             <cmd>lua vim.lsp.util.show_line_diagnostics()<CR>
-nnoremap <leader>p     <cmd>lua vim.lsp.buf.formatting()<cr>
-
-let g:completion_enable_auto_signature = 1
-let g:completion_confirm_key="\<C-y>"
-
-" Auto close popup menu when finish completion
-autocmd! CompleteDone * if pumvisible() == 0 | pclose | endif
-
-" Set completeopt to have a better completion experience
-set completeopt=menuone,noinsert,noselect
-" }}}
-
-"  +--------------------------------------------------+
-"  |                    FLOATTERM                     |
-"  +--------------------------------------------------+
-"  {{{
-let g:floaterm_winblend=0
-hi FloatermNF guibg=default
-hi FloatermBorderNF guibg=ignore guifg=ignore
-let g:floaterm_position='center'
-nnoremap - <cmd>FloatermNew fff<cr>
-nnoremap <c-c> :FloatermKill<cr>
-nnoremap <c-c> :FloatermKill<cr>
-" ,. is now open terminal
-nnoremap <silent><leader>. <cmd>FloatermToggle<cr>
-nnoremap <silent><leader>t <cmd>split<cr><cmd>term<cr>
-"  }}}
-
+"
 "  +--------------------------------------------------+
 "  |                 TURN THINGS OFF                  |
 "  +--------------------------------------------------+
@@ -350,7 +216,7 @@ function! Show()
   set showmode ruler laststatus=2 showcmd
 endfunction
 " hide by default
-call Hide()
+" call Hide()
 command! Hide call Hide()
 command! Show call Show()
 "  }}}
@@ -365,15 +231,4 @@ command! -nargs=1 StartAsync
          \       execute('echom "command finished with exit status '.d.'"', '')
          \    }
          \ })
-"  }}}
-
-"  +--------------------------------------------------+
-"  |                  REPLACE NETRW                   |
-"  +--------------------------------------------------+
-"  {{{
-" augroup ReplaceNetrwByFFF
-"   autocmd VimEnter * silent! autocmd! FileExplorer
-"   autocmd StdinReadPre * let s:std_in=1
-"   autocmd VimEnter * if argc() == 1 && isdirectory(argv()[0]) && !exists("s:std_in") | call floaterm#run('new', !0, 'fff') | endif
-" augroup END
 "  }}}

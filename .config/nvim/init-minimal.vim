@@ -1,4 +1,3 @@
-
 "   +--------------------------------------------------+
 "  |                     PLUGINS                      |
 "  +--------------------------------------------------+
@@ -19,7 +18,7 @@ Plug 'godlygeek/tabular'                                                " tabula
 Plug 'rstacruz/vim-closer'                                              " auto pairs
 " Pretty things
 Plug 'luochen1990/rainbow'                                              " rainbow parentheses
-Plug 'drewtempelmeyer/palenight.vim'                                    " themes and airline
+Plug 'kaicataldo/material.vim', { 'branch': 'main' }
 " Language packs
 Plug 'plasticboy/vim-markdown'
 Plug 'andys8/vim-elm-syntax', {'for': 'elm'}                            " elm support
@@ -78,7 +77,7 @@ set wildignorecase
 "{{{
 set termguicolors
 set background=dark
-colorscheme palenight
+colorscheme material
 " set comments to be italics
 set t_ZH=[3m
 set t_ZR=[23m
@@ -216,7 +215,7 @@ function! Show()
   set showmode ruler laststatus=2 showcmd
 endfunction
 " hide by default
-" call Hide()
+call Hide()
 command! Hide call Hide()
 command! Show call Show()
 "  }}}

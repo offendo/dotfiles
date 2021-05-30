@@ -199,7 +199,8 @@ for_window [title="\*Emacs Anywhere\*"] floating enable
 # {{{
 exec_always --no-startup-id "python3.9 ~/.local/bin/alternating_layouts.py"
 exec_always --no-startup-id set-background
-# polybar
-exec_always bash -c "sleep 2 && ~/.config/polybar/panels/launch.sh"
+exec_always --no-startup-id bash -c "sleep 2 && ~/.config/polybar/panels/launch.sh"
+exec --no-startup-id xrdb ~/.Xresources
+
 # }}}
 

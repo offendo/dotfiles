@@ -3,10 +3,9 @@ Section "ServerLayout"
     Screen      0  "Screen0" 0 0
 EndSection
 
-# Section "Files"
-#     ModulePath      "/usr/lib/x86_64-linux-gnu/nvidia-440/xorg"
-#     ModulePath      "/usr/lib/xorg/modules"
-# EndSection
+Section "Module"
+    Load "modesetting"
+EndSection
 
 Section "Monitor"
     Identifier     "eDP-1-1"
@@ -37,6 +36,7 @@ Section "Device"
     BusID          "PCI:11:00:0"
     VendorName     "NVIDIA Corporation"
     Option         "AllowExternalGpus" "True"
+    Option         "AllowEmptyInitialConfiguration"
 EndSection
 
 Section "Device"
@@ -44,6 +44,7 @@ Section "Device"
     Driver         "modesetting"
     BusID          "PCI:00:02:0"
     VendorName     "Intel"
+    Option         "AllowEmptyInitialConfiguration"
     # Option         "AllowExternalGpus" "True"
 EndSection
 

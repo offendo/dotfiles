@@ -31,7 +31,7 @@ Check out the [[https://github.com/noctuid/general.el][general]] page for more i
   :straight t
   :config
   (evil-mode 1)
-  (when (display-graphic-p)
+  (if (display-graphic-p)
     (define-key key-translation-map (kbd "ESC") (kbd "C-g")))
   :general
   (:keymaps 'evil-motion-state-map "RET" nil))
@@ -79,7 +79,7 @@ Check out the [[https://github.com/noctuid/general.el][general]] page for more i
    "C-S-a" 'evil-mc-make-all-cursors
    "C-g" 'evil-mc-undo-all-cursors
    "C-l" 'evil-mc-make-cursor-in-visual-selection-beg
-   "C-x" 'evil-mc-undo-last-added-cursor)
+   "C-/" 'evil-mc-undo-last-added-cursor)
   (:keymaps 'mc/keymap "RET" nil)
   :init (global-evil-mc-mode))
 #+end_src
@@ -240,7 +240,7 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 ** Built-ins
 *** Disable compilation warnings
 #+begin_src elisp
-;; (setq warning-suppress-log-types '((comp)))
+(setq warning-suppress-log-types '((comp)))
 #+end_src
 
 *** Personal info
@@ -305,7 +305,6 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 #+begin_src elisp
 (use-package tramp
   :straight nil
-  :defer t
   :config 
   (setq tramp-default-method "ssh"))
 #+end_src
@@ -527,19 +526,20 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 
 *** Python
 #+begin_src elisp
-;; (use-package lsp-python-ms
-;;   :straight t
-;;   :config (setq lsp-python-ms-auto-install-server t
-;;                 lsp-python-ms-cache "Library")
-;;   :hook (python-mode . (lambda ()
-;;                          (require 'lsp-python-ms)
-;;                          (lsp))))
-(use-package lsp-jedi
+(use-package lsp-python-ms
   :straight t
-  :hook (python-mode . (lambda () (require 'lsp-jedi) (lsp)))
-  :config
-    (add-to-list 'lsp-disabled-clients 'pyls)
-    (add-to-list 'lsp-enabled-clients 'jedi))
+  :config (setq lsp-python-ms-auto-install-server t
+                lsp-python-ms-cache "Library")
+          (setq lsp-python-ms-extra-paths ["/home/offendo/src/the-count/"])
+  :hook (python-mode . (lambda ()
+                         (require 'lsp-python-ms)
+                         (lsp))))
+;; (use-package lsp-jedi
+;;   :straight t
+;;   :hook (python-mode . (lambda () (require 'lsp-jedi) (lsp)))
+;;   :config
+;;     (add-to-list 'lsp-disabled-clients 'pyls)
+;;     (add-to-list 'lsp-enabled-clients 'jedi))
 #+end_src
 
 *** Haskell
@@ -938,10 +938,12 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 #+begin_src elisp
 ;; load a theme
 ;; (use-package spacemacs-common
-;;   :straight spacemacs-theme
-;;   :init (load-theme 'spacemacs-light t))
+;;   :straight spacemacs-theme)
 (use-package material-theme
   :straight t)
+;; (use-package solarized-theme
+;;   :straight t)
+;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
 
 (setq default-frame-alist
       (append (list
@@ -1005,26 +1007,28 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 
 ** Modeline
 #+begin_src elisp
-;; (use-package doom-modeline
-;;   :straight t
-;;   :config
-;;   (column-number-mode 1)
-;;   (setq doom-modeline-height 25
-;;         doom-modeline-bar-width 3
-;;         doom-modeline-mu4e nil
-;;         doom-modeline-buffer-encoding nil)
-;;   (doom-modeline-mode))
-(use-package spaceline
+(use-package doom-modeline
   :straight t
-  :init
-  (setq powerline-height 25
-        powerline-default-separator 'wave
-        spaceline-auto-compile-p nil) ;; don't autocompile
-  (spaceline-spacemacs-theme)
-  (spaceline-toggle-hud-off)
-  (spaceline-toggle-mu4e-alert-segment-off)
-  (spaceline-toggle-version-control-off)
-  (spaceline-toggle-minor-modes-off))
+  :hook (after-init . doom-modeline-mode)
+  :config
+  (column-number-mode 1)
+  (setq doom-modeline-height 32
+        doom-modeline-bar-width 3
+        doom-modeline-mu4e nil
+        doom-modeline-buffer-file-name-style 'file-name
+        doom-modline-percent-position nil
+        doom-modeline-buffer-encoding nil))
+;; (use-package spaceline
+;;   :straight t
+;;   :init
+;;   (setq powerline-height 25
+;;         powerline-default-separator 'wave
+;;         spaceline-auto-compile-p nil) ;; don't autocompile
+;;   (spaceline-spacemacs-theme)
+;;   (spaceline-toggle-hud-off)
+;;   (spaceline-toggle-mu4e-alert-segment-off)
+;;   (spaceline-toggle-version-control-off)
+;;   (spaceline-toggle-minor-modes-off))
 #+end_src
 
 ** Highlight TODOs

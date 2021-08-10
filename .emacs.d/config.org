@@ -523,7 +523,11 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :straight t
   :general
   (leader-def "d" 'docker))
+
+(use-package dockerfile-mode
+  :straight t)
 #+end_src
+
 ** LSP
 *** LSP mode
 #+begin_src elisp

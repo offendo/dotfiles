@@ -203,7 +203,7 @@ let g:multi_cursor_prev_key            = '<c-p>'
 let g:multi_cursor_skip_key            = '<c-x>'
 let g:multi_cursor_quit_key            = '<esc>'
 " }}}
-"
+
 "  +--------------------------------------------------+
 "  |                 TURN THINGS OFF                  |
 "  +--------------------------------------------------+

@@ -141,6 +141,7 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 #+end_src
 
 ** Keybindings
+*** General
 #+begin_src elisp
 (general-create-definer leader-def
   :states '(normal insert emacs)
@@ -203,7 +204,6 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :prefix-command 'org-roam-stuff
   :prefix-map 'leader-org-roam-prefix-map)
 
-
 (general-create-definer leader-misc-def
   :states '(normal insert emacs)
   :prefix "SPC u"
@@ -238,6 +238,11 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 #+end_src
 
 ** Built-ins
+*** Customize
+#+begin_src elisp
+(setq custom-file "/home/offendo/.dotfiles/.emacs.d/customize.el")
+#+end_src
+
 *** Disable compilation warnings
 #+begin_src elisp
 (setq warning-suppress-log-types '((comp)))
@@ -414,22 +419,28 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :straight nil
   :hook (LaTeX-mode . auto-fill-mode)
   :config
+  (setq TeX-view-program-list
+        '(("qpdfview" ("qpdfview --unique %o" (mode-io-correlate "#src:%b:%n:0")) "qpdfview")))
   (setq tex-fontify-script nil
         font-latex-fontify-script nil
         font-latex-fontify-sectioning 'color)
-  (setq +latex-viewers '(skim atril evince sumatrapdf zathura okular pdf-tools)
-    TeX-view-program-selection '((output-pdf "Atril"))))
+  (setq +latex-viewers '(qpdfview pdf-tools skim evince sumatrapdf zathura okular))
+  (setq TeX-view-program-selection
+        '(((output-dvi has-no-display-manager) "dvi2tty")
+          ((output-dvi style-pstricks) "dvips and gv")
+          (output-dvi "xdvi")
+          (output-pdf "qpdfview")
+          (output-html "xdg-open")))
+  (push '("LatexMk" "latexmk -bibtex -outdir=/tmp %t; cp -v /tmp/%o ." TeX-run-TeX nil t
+          :help "Make pdf output using latexmk.")
+        TeX-command-list)
+  (setq TeX-default-command "LatexMk"
+        TeX-command "LatexMk"
+        LaTeX-command "LatexMk")
+  )
 (use-package auctex
   :straight t
-  :defer t
-  :config
-  (add-to-list
-   'TeX-command-list
-   '("LatexMk"
-     "latexmk -outdir=./build/ -pdflatex='lualatex -shell-escape -interaction nonstopmode' -pdf -f  %f"
-     TeX-run-command t t
-     :help "Run LatexMk"))
-  (setq 'TeX-command-default "LatexMk"))
+  :defer t)
 #+end_src
 
 *** Python
@@ -439,7 +450,8 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :straight nil
   :mode ("\\.py\\'" . python-mode)
   :interpreter ("python" . python-mode)
-  :hook (python-mode . tree-sitter-hl-mode)
+  :hook 
+    (python-mode . tree-sitter-hl-mode)
   :config 
   (setq python-indent-guess-indent-offset-verbose nil))
 #+end_src
@@ -454,12 +466,26 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 #+begin_src elisp
 (use-package pyvenv
   :straight t
-  :defer t
   :config
   (setenv "WORKON_HOME" "~/.local/share/virtualenvs/")
-  ; Show python venv name in modeline
-  (setq pyvenv-mode-line-indicator '(pyvenv-virtual-env-name ("[venv:" pyvenv-virtual-env-name "] ")))
+  (setq pyvenv-mode-line-indicator
+        '(pyvenv-virtual-env-name
+          ("(Env: " pyvenv-virtual-env-name ") ")))
   (pyvenv-mode t))
+
+;; Tell the function where to look for virtual envs
+(defvar venv-directory)
+(setq venv-directory "/home/offendo/.local/share/virtualenvs/")
+
+(defun auto-venv-activate ()
+  "Automatically activate virtualenv if one is found in `venv-directory`"
+  (let ((venvs (seq-filter
+                (lambda (dirname)
+                  (string-match-p (regexp-quote (projectile-project-name)) dirname))
+                (directory-files venv-directory))))
+    (if venvs
+        (progn (pyvenv-workon (car venvs))
+               (message (concat "Activated " (car venvs)))))))
 #+end_src
 
 *** Haskell
@@ -485,6 +511,19 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :straight t)
 #+end_src
 
+*** YAML
+#+begin_src elisp
+(use-package yaml-mode
+  :straight t)
+#+end_src
+
+*** Docker
+#+begin_src elisp
+(use-package docker
+  :straight t
+  :general
+  (leader-def "d" 'docker))
+#+end_src
 ** LSP
 *** LSP mode
 #+begin_src elisp
@@ -511,6 +550,8 @@ This doesn't work with early-init though, so it'll take some work if I ever want
         lsp-ui-sideline-ignore-duplicate t
         lsp-ui-sideline-show-code-actions nil
         lsp-signature-auto-activate t
+        lsp-signature-lines 2
+        lsp-signature-render-documentation nil
         lsp-enable-symbol-highlighting nil)
   :general
   ;; goto stuff
@@ -519,6 +560,7 @@ This doesn't work with early-init though, so it'll take some work if I ever want
         :prefix "g"
         "r" 'lsp-ui-peek-find-references
         "d" 'lsp-find-definition
+        "m" 'lsp-ui-imenu
         "D" 'lsp-ui-peek-find-definitions)
   ;; rename
   (leader-code-def "r" 'lsp-rename))
@@ -530,8 +572,9 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :straight t
   :config (setq lsp-python-ms-auto-install-server t
                 lsp-python-ms-cache "Library")
-          (setq lsp-python-ms-extra-paths ["/home/offendo/src/the-count/"])
+  :init (setq-default lsp-python-ms-extra-paths ["/home/offendo/src/the-count/"])
   :hook (python-mode . (lambda ()
+                         (auto-venv-activate)
                          (require 'lsp-python-ms)
                          (lsp))))
 ;; (use-package lsp-jedi
@@ -750,10 +793,15 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   :hook ((prog-mode conf-mode text-mode) . evil-vimish-fold-mode))
 (use-package hideshow
   :straight nil
-  :hook ((prog-mode org-mode text-mode) . hs-minor-mode))
+  :hook ((prog-mode org-mode text-mode) . hs-minor-mode)
+  :general
+  (general-define-key 
+    :keymaps 'normal
+    "TAB" 'hs-toggle-hiding))
 #+end_src
 
 ** Mu4e
+
 #+begin_src elisp
 (add-to-list 'exec-path "/usr/local/share/emacs/site-lisp/mu4e/")
 (use-package mu4e
@@ -790,6 +838,12 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   (setq mu4e-alert-email-notification-types '(count))
   (add-hook 'after-init-hook #'mu4e-alert-enable-notifications))
 
+#+end_src
+
+** ERC
+#+begin_src elisp
+(use-package erc
+  :straight t)
 #+end_src
 
 * Editing
@@ -857,7 +911,11 @@ This doesn't work with early-init though, so it'll take some work if I ever want
     (concat nilays-cache-dir "ltximg/"))
   ;; org-mode src blocks
   (setq org-edit-src-content-indentation 0
-        org-src-tab-acts-natively t))
+        org-src-tab-acts-natively t)
+  :general
+  (leader-org-def "l" 'org-store-link)
+  (leader-org-def "p" 'org-insert-link)
+)
 #+end_src
 
 ** Exporting
@@ -937,14 +995,13 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 ** Set the frames and theme
 #+begin_src elisp
 ;; load a theme
-;; (use-package spacemacs-common
-;;   :straight spacemacs-theme)
+(use-package spacemacs-common
+  :straight spacemacs-theme)
 (use-package material-theme
   :straight t)
-;; (use-package solarized-theme
-;;   :straight t)
-;; (add-to-list 'custom-theme-load-path "~/.emacs.d/themes")
-
+(use-package solarized-theme
+  :straight t)
+  
 (setq default-frame-alist
       (append (list
                '(vertical-scroll-bars . nil)
@@ -956,6 +1013,12 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 
 (defun nilays-set-display ()
   (interactive)
+  ;; theme
+  (setq modus-themes-slanted-constructs t
+        modus-themes-bold-constructs t
+        modus-themes-syntax 'faint
+        modus-themes-mode-line nil)
+  (load-theme 'solarized-gruvbox-dark t)
   ;; fonts
   (set-face-attribute
    'variable-pitch nil
@@ -966,8 +1029,6 @@ This doesn't work with early-init though, so it'll take some work if I ever want
   (set-face-attribute
    'default nil
    :font "Iosevka Medium Extended-12")
-  ;; theme
-  (load-theme 'material t)
   )
 
 (if (daemonp)
@@ -985,6 +1046,8 @@ This doesn't work with early-init though, so it'll take some work if I ever want
 (tool-bar-mode -1)
 (menu-bar-mode -1)
 
+(setq display-line-numbers-type 'relative)
+(global-display-line-numbers-mode)
 ;; highlight current line
 (global-hl-line-mode)
 

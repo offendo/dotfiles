@@ -69,8 +69,11 @@ xset -b
 #  |                    FUNCTIONS                     |
 #  +--------------------------------------------------+
 
-# cd on exit in vim fff
 
+# Calculator
+c() { python -c "from math import *; print($*)"; }
+
+# cd on exit in vim fff
 # Example setup (posix) (non-bash)
 f() { fff "$@"; cd "$(cat ~/.fff_d)"; }
 

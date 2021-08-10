@@ -2,4 +2,5 @@
 # name: begin
 # --
 #+begin_$1 $2
+$3
 #+end_$1

@@ -191,6 +191,13 @@ for_window [title="Manjaro Settings Manager"] floating enable, borders none
 for_window [class="galculator"] floating enable, borders none
 for_window [title="Panel Preferences"] floating enable, borders none
 for_window [title="\*Emacs Anywhere\*"] floating enable
+for_window [class="Calendar"] floating enable, borders none
+for_window [title="Add/Remove Software"] floating enable, borders none
+for_window [title="Ulauncher Preferences"] floating enable, borders none
+for_window [title="Zoom Cloud Meetings"] floating enable, borders none
+for_window [title="Bluetooth Devices"] floating enable, borders none
+
+
 #  }}}
 
 #  +--------------------------------------------------+

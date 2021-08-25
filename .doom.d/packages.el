@@ -5,24 +5,17 @@
 ;; on the command line, then restart Emacs for the changes to take effect -- or
 ;; use 'M-x doom/reload'.
 
-;; Pretty bullets
-;; (package! org-superstar)
-;; (package! org-ref)
-
-;; Looks pretty
-(package! nano-emacs
-  :recipe (:host github :repo "rougier/nano-emacs"
-           :files ("nano.el" "*.el")))
-
-;; Better % matching
-(package! evil-matchit)
-
-;; Theming
-(package! kaolin-themes)
-(package! flycheck)
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
-;; (package! some-package)
+;(package! some-package)
+(package! tree-sitter)
+(package! tree-sitter-langs)
+
+(package! kubel)
+(package! kubel-evil)
+
+(package! jsonnet-mode)
+
 ;; To install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
 ;; https://github.com/raxod502/straight.el#the-recipe-format
@@ -38,6 +31,7 @@
 
 ;; If you'd like to disable a package included with Doom, you can do so here
 ;; with the `:disable' property:
+;(package! builtin-package :disable t)
 (package! flymake :disable t)
 
 ;; You can override the recipe of a built in package without having to specify

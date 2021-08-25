@@ -3,7 +3,7 @@
 #  +--------------------------------------------------+
 # {{{
 set $browser firefox
-set $term xfce4-terminal
+set $term io.elementary.terminal
 set $mod Mod4
 set $thick 16
 # }}}
@@ -205,9 +205,10 @@ for_window [title="Bluetooth Devices"] floating enable, borders none
 #  +--------------------------------------------------+
 # {{{
 exec_always --no-startup-id "python3.9 ~/.local/bin/alternating_layouts.py"
-exec_always --no-startup-id set-background
-exec_always --no-startup-id bash -c "sleep 2 && ~/.config/polybar/panels/launch.sh"
-exec --no-startup-id xrdb ~/.Xresources
+exec_always --no-startup-id bash -c "picom -b"
+exec_always --no-startup-id bash -c "env GDK_BACKEND=x11 /usr/bin/ulauncher --hide-window --hide-window"
+exec_always --no-startup-id bash -c "sleep 2 && monica && set-background && ~/.config/polybar/panels/launch.sh"
+exec_always --no-startup-id xrdb /home/offendo/.Xresources
 
 # }}}
 

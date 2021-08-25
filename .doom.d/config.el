@@ -1,273 +1,80 @@
-;; Font - Still not really sure if this overrides nano stuff
-(setq doom-font "Iosevka Extended-12"
-      doom-variable-pitch-font "Iosevka Extended-13")
+;;; $DOOMDIR/config.el -*- lexical-binding: t; -*-
 
-;; Theme - Palenight is the classic, sometimes I like a light theme
-;; (setq doom-theme 'doom-palenight)
-(setq doom-theme 'adwaita)
+;; Place your private configuration here! Remember, you do not need to run 'doom
+;; sync' after modifying this file!
 
-;; (setq doom-theme 'kaolin-valley-light)
 
-;; Ispell dicitonary
-(setq ispell-dictionary "en")
-
-;; User name & stuff
+;; Some functionality uses this to identify you, e.g. GPG configuration, email
+;; clients, file templates and snippets.
 (setq user-full-name "Nilay"
       user-mail-address "nilaypatel2@gmail.com")
 
-;; Relative line Numbers (visual makes it account for big lines)
-(setq display-line-numbers-type nil)
+;; Doom exposes five (optional) variables for controlling fonts in Doom. Here
+;; are the three important ones:
+;;
+;; + `doom-font'
+;; + `doom-variable-pitch-font'
+;; + `doom-big-font' -- used for `doom-big-font-mode'; use this for
+;;   presentations or streaming.
+;;
+;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
+;; font string. You generally only need these two:
+(setq doom-font (font-spec :family "Iosevka Extended" :size 14 :weight 'regular)
+      doom-variable-pitch-font (font-spec :family "Iosevka Extended" :size 14))
 
-;; Turn off highlighting on search
-(setq evil-ex-search-persistent-highlight nil)
+;; There are two ways to load a theme. Both assume the theme is installed and
+;; available. You can either set `doom-theme' or manually load a theme with the
+;; `load-theme' function. This is the default:
+(setq doom-theme 'doom-material)
 
-(setq projectile-track-known-projects-automatically nil)
-
-(add-load-path! "/home/offendo/.emacs.d/.local/straight/build-27.1/nano-emacs")
-;; this will set all the necessary colors
-;; just make sure not to call (nano-theme)
-(require 'nano-theme-light)
-;: Mandatory
-(require 'nano-base-colors)
-(require 'nano-faces)
-;; Theme -- Not sure if I need this anymore
-(require 'nano-theme)
-;; Nano header & mode lines
-(setq-default mode-line-format nil)
-(setq mode-line-format nil)
-
-(setq default-frame-alist
-      (append (list
-               '(min-height . 1)  '(height     . 90)
-               '(min-width  . 1) '(width      . 162)
-               '(vertical-scroll-bars . nil)
-               '(internal-border-width . 48)
-               '(left-fringe    . 0)
-               '(right-fringe   . 0)
-               '(tool-bar-lines . 0)
-               '(menu-bar-lines . 0))))
-
-(defface fallback '((t :family "Fira Code"
-                       :inherit 'nano-face-faded)) "Fallback")
-(set-display-table-slot standard-display-table 'truncation
-                        (make-glyph-code ?… 'fallback))
-(set-display-table-slot standard-display-table 'wrap
-                        (make-glyph-code ?↩ 'fallback))
-
-(set-fontset-font t nil "Fira Code" nil 'append)
-
-(setq inhibit-startup-screen t
-      inhibit-startup-message t
-      inhibit-startup-echo-area-message t
-      initial-scratch-message nil)
-(tool-bar-mode 0)
-(tooltip-mode 0)
-(menu-bar-mode 0)
-(global-hl-line-mode 1)
-(setq x-underline-at-descent-line t)
-
-;; Vertical window divider
-(setq window-divider-default-right-width 24)
-(setq window-divider-default-places 'right-only)
-(window-divider-mode nil)
-
-;; No ugly button for checkboxes
-(setq widget-image-enable nil)
-
-;; Hide org markup for README
-(setq org-hide-emphasis-markers t)
-
-(require 'nano-writer)
-
-;; not sure why this works and the other one doesn't...
-(add-load-path! "/home/offendo/.doom.d/")
-(require 'fndo-nano-modeline)
-
-(use-package evil-matchit
-  :after evil
-  :config
-  (global-evil-matchit-mode t))
-
-;; disable evil-snipe
-(after! evil-snipe
-  (evil-snipe-mode -1))
-
-(defmacro define-and-bind-text-object (key start-regex end-regex)
-  (let ((inner-name (make-symbol "inner-name"))
-        (outer-name (make-symbol "outer-name")))
-    `(progn
-       (evil-define-text-object ,inner-name (count &optional beg end type)
-         (evil-select-paren ,start-regex ,end-regex beg end type count nil))
-       (evil-define-text-object ,outer-name (count &optional beg end type)
-         (evil-select-paren ,start-regex ,end-regex beg end type count t))
-       (define-key evil-inner-text-objects-map ,key (quote ,inner-name))
-       (define-key evil-outer-text-objects-map ,key (quote ,outer-name)))))
-;; create "il"/"al" (inside/around) line text objects:
-(define-and-bind-text-object "l" "^\\s-*" "\\s-*$")
-;; create "id"/"ad" (inside/around) entire buffer text objects:
-(define-and-bind-text-object "d" "\\`\\s-*" "\\s-*\\'")
-                                        ; between dollar signs:
-(define-and-bind-text-object "$" "\\$" "\\$")
-
-;; Somewhere to dump org files like agenda, etc.
+;; If you use `org' and don't want your org files in the default location below,
+;; change `org-directory'. It must be set before org loads!
 (setq org-directory "~/org/")
 
-;; Make the agenda show the whole week starting from today
-(after! org-agenda
-  (setq org-agenda-span 'week)
-  (setq org-agenda-start-day "+0d"))
+;; This determines the style of line numbers in effect. If set to `nil', line
+;; numbers are disabled. For relative line numbers, set this to `relative'.
+(setq display-line-numbers-type 'relative)
 
-;; Some nice visual things
-(after! org-mode
-  (setq org-image-actual-width nil))
 
-;; max column width
-(add-hook 'org-mode-hook
-          (lambda ()
-            (auto-fill-mode)))
-
-;; LaTeX Exporting
-(after! ox-latex
-  ;; latexmk is the only way to go
-  (setq org-latex-pdf-process
-        (list "latexmk -outdir=./build/ -pdflatex='lualatex -shell-escape -interaction nonstopmode' -pdf -f  %f"))
-  ;; Pretty minted stuff
-  (setq org-latex-listings 'minted)
-  ;; Beamer level should be 2 so we can have sections, e.g. Introduction, Analysis
-  (setq org-beamer-frame-level 2)
-  ;; make previews normal sized
-  (plist-put org-format-latex-options :scale 3)
-  ;; don't bother starting up with latex previews, it just makes things slow
-  (setq org-startup-with-latex-preview nil)
-  ;; latex exporting
-  (push '("" "minted" t) org-latex-packages-alist)
-  (push '("" "booktabs" t) org-latex-packages-alist)
-  (setq org-latex-caption-above nil)
-  (push '("homework" "\\documentclass{homework}") org-latex-classes)
-  ;; load org-mode bibtex
-  (require 'ox-bibtex))
-
-;; This lets you publish a "project" via org-mode export:
-;; (setq org-publish-project-alist
-;;       '(;; This defines how to publish the org-mode content:
-;;         ("org-fndo"
-;;          ;; Path to your org files.
-;;          :base-directory "~/Documents/code/offendo.github.io/org/"
-;;          :base-extension "org"
+;; Here are some additional functions/macros that could help you configure Doom:
 ;;
-;;          ;; Path to your Jekyll project.
-;;          :publishing-directory "~/Documents/code/offendo.github.io/deploy/"
-;;          :recursive t
-;;          :publishing-function org-html-publish-to-html
-;;          :headline-levels 4
-;;          :html-extension "html"
-;;          :body-only t ;; Only export section between <body> </body>
-;;          :with-toc nil
-;;          :auto-preamble nil
-;;          )
-;;         ;; This defines how to publish non-org-mode content e.g. txt files
-;;         ("org-static-fndo"
-;;          :base-directory "~/Documents/code/offendo.github.io/org/"
-;;          :base-extension "css\\|js\\|png\\|jpg\\|gif\\|pdf\\|mp3\\|ogg\\|swf\\|php"
-;;          :publishing-directory "~/Documents/code/offendo.github.io/deploy/"
-;;          :recursive t
-;;          :publishing-function org-publish-attachment)
+;; - `load!' for loading external *.el files relative to this one
+;; - `use-package!' for configuring packages
+;; - `after!' for running code after a package has loaded
+;; - `add-load-path!' for adding directories to the `load-path', relative to
+;;   this file. Emacs searches the `load-path' when you load packages with
+;;   `require' or `use-package'.
+;; - `map!' for binding new keys
 ;;
-;;         ;; This says "jb.com" is both of the above:
-;;         ("offendo.github.io" :components ("org-fndo" "org-static-fndo"))
-;;         ))
+;; To get information about any of these functions/macros, move the cursor over
+;; the highlighted symbol at press 'K' (non-evil users must press 'C-c c k').
+;; This will open documentation for it, including demos of how they are used.
 ;;
-;; (defun org-jekyll-post-link-follow (path)
-;;   (org-open-file-with-emacs path))
-;;
-;; (defun org-jekyll-post-link-export (path desc format)
-;;   (cond
-;;    ((eq format 'html)
-;;     (format "<a href=\"{%% post_url %s %%}\">%s</a>" (file-name-sans-extension path) desc))))
-;;
-;; (org-add-link-type "jekyll-post" 'org-jekyll-post-link-follow 'org-jekyll-post-link-export)
+;; You can also try 'gd' (or 'C-c c d') to jump to their definition and see how
+;; they are implemented.
 
-;; autocompletion
-(use-package! company
-  :config (setq company-idle-delay 0.2
-                company-minimum-prefix-length 3))
+;; pyvenv workon home
+(setenv "WORKON_HOME" "~/.local/share/virtualenvs/")
 
-(map! (:map company-mode-map
-       :desc "Trigger autocompletion"
-       :i "C-l" #'company-search-candidates))
 
-;; LSP mode bindings
-(require 'evil)
-(map! (:map lsp-mode-map
-       :desc "Peek at implementation"
-       :nv "gd" #'lsp-ui-peek-find-definitions
-       :desc "Peek at references"
-       :nv "gr" #'lsp-ui-peek-find-references))
-
-;; Enable the docs
-(add-hook 'lsp-mode-hook
-          (lambda ()
-            (require 'lsp-ui)
-            (lsp-ui-mode)
-            (setq lsp-ui-doc-max-height 16
-                  lsp-ui-doc-max-width 100
-                  lsp-ui-doc-enable t ;; disable for now to see how I like it
-                  lsp-ui-sideline-ignore-duplicate t
-                  lsp-signature-auto-activate nil
-                  lsp-enable-symbol-highlighting nil
-                  lsp-ui-doc-position 'top)
-            ;; (set-face-background 'lsp-ui-doc-background "#292D3E")
-            ;; (set-face-background 'child-frame-border "#95a4e1")
-            ;; (set-face-background 'lsp-ui-doc-background "#292D3E")
-            ;; (set-face-background 'lsp-ui-peek-peek "#292D3E")
-            ;; (set-face-background 'lsp-ui-peek-list "#292D3E")
-            ))
-
-;; only update checks on save
-(setq flycheck-check-syntax-automatically '(mode-enabled save))
-
-;; Haskell Specific stuff
-(add-hook 'haskell-mode-hook
-          (lambda ()
-            (setq lsp-haskell-diagnostics-on-change nil
-                  lsp-haskell-hlint-on t)))
-
-;; make the column width fixed
-(add-hook 'LaTeX-mode-hook
-          (lambda ()
-            (auto-fill-mode)
-            (setq tex-fontify-script nil)
-            (setq font-latex-fontify-script nil)
-            (setq +latex-viewers '(skim atril evince sumatrapdf zathura okular pdf-tools)
-                  TeX-view-program-selection '((output-pdf "Atril")))))
-
-(add-load-path! "/usr/local/share/emacs/site-lisp/mu4e/")
-(use-package! mu4e
-  :load-path "/usr/local/share/emacs/site-lisp/mu4e/"
-  :ensure nil
+;; tree-sitter
+(use-package! tree-sitter
   :config
-  (setq mu4e-change-filenames-when-moving t)
-  ;; update every 10 minutes
-  (setq mu4e-update-interval (* 3 60))
-  (setq mu4e-get-mail-command "mbsync -a")
-  ;; mail in the mail directory
-  (setq mu4e-maildir-list (list "~/mail"))
-  ;; set all the different folders
-  (setq mu4e-drafts-folder "/[Gmail]/Drafts")
-  (setq mu4e-sent-folder   "/[Gmail]/Sent Mail")
-  (setq mu4e-refile-folder "/[Gmail]/All Mail")
-  (setq mu4e-trash-folder  "/[Gmail]/Trash")
-  ;; shortcuts
-  (setq mu4e-maildir-shortcuts
-        '(("/Inbox" . ?i)
-          ("/[Gmail]/Sent Mail" . ?s)
-          ("/[Gmail]/All Mail" . ?a)
-          ("/[Gmail]/Trash" . ?t)
-          ("/[Gmail]/Drafts" . ?d)))
-  ;; read html better
-  ;; (setq mu4e-html2text-command "html2text")
-  ;; send a notification for new emails
-  (add-hook 'mu4e-index-updated-hook
-            (lambda ()
-              (shell-command
-               "notify-send -t 5000 -a 'mu4e' -i 'emacs' 'You have new emails\!'"))))
+  (require 'tree-sitter-langs)
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+
+
+;; disable comment continuation on o/O and enter
+(setq +evil-want-o/O-to-continue-comments nil
+      +default-want-RET-continue-comments nil)
+
+
+;; disable spelling in buffers unless I enable it
+(remove-hook 'text-mode-hook #'spell-fu-mode)
+
+(use-package! kubel)
+(use-package! kubel-evil)
+
+;; latex image scale
+(after! AUCTeX (plist-put org-format-latex-options :scale 0.4))

@@ -71,7 +71,9 @@ xset -b
 
 
 # Calculator
-c() { python -c "from math import *; print($*)"; }
+_haskell_calc() { echo $* | ghci | tail -n2 | head -n1 | cut -f 2- -d' ' }
+alias c="noglob _haskell_calc" 
+    
 
 # cd on exit in vim fff
 # Example setup (posix) (non-bash)
@@ -193,3 +195,21 @@ _pipenv() {
 if [[ "$(basename -- ${(%):-%x})" != "_pipenv" ]]; then
   compdef _pipenv pipenv
 fi
+
+
+# 
+# #  +--------------------------------------------------+
+# #  |             Autoquote for calculator             |
+# #  +--------------------------------------------------+
+# function quote-accept-line() {
+#     local -a starts_with=("c ")
+#     for str ($starts_with) {
+#         if [[ ${(M)BUFFER#$str} ]] {
+#             BUFFER=$str${(qq)BUFFER#$str}
+#         }
+#     }
+#     zle accept-line
+# }
+# zle -N quote-accept-line
+# # bind it to "Enter"
+# bindkey "^M" quote-accept-line

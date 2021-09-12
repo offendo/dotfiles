@@ -77,4 +77,23 @@
 (use-package! kubel-evil)
 
 ;; latex image scale
-(after! AUCTeX (plist-put org-format-latex-options :scale 0.4))
+(after! org (plist-put org-format-latex-options :scale 0.45))
+
+;; Auto activate pyvenv
+(defvar venv-directory)
+(setq venv-directory "/home/offendo/.local/share/virtualenvs/")
+
+
+(use-package! pipenv
+  :init
+  (defun auto-venv-activate ()
+    "Automatically activate virtualenv if one is found in `venv-directory`"
+    (interactive)
+    (let ((venvs (seq-filter
+                  (lambda (dirname)
+                    (string-match-p (regexp-quote (projectile-project-name)) dirname))
+                  (directory-files venv-directory))))
+      (if venvs
+          (progn (pyvenv-workon (car venvs))
+                 (message (concat "Activated " (car venvs)))))))
+  :hook (python-mode . auto-venv-activate))
